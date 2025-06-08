@@ -35,12 +35,14 @@ function toggleChatMenu() {
 document.addEventListener("click", function(e) {
   // WhatsApp: отслеживаем клик по ссылке на wa.me с aria-label="WhatsApp"
   if (e.target.closest('a[href^="https://wa.me/"][aria-label="WhatsApp"]')) {
+    window.sendStats('whatsapp-click');
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: "WhatsApp button" });
   }
 
   // SMS или телефон: отслеживаем клик по sms: ссылке
   if (e.target.closest('a[href^="sms:"]')) {
+    window.sendStats('sms-click');
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: "phoneClick" });
   }

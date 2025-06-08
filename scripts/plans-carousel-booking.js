@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       plansOverlay.classList.remove("hidden")
       document.body.classList.add("modal-open")
 
+      window.sendStats('modal-open', { modal: 'plans' });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'quizStarted' });
 
@@ -258,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         setTimeout(() => {
+          window.sendStats('form-submit', { plan: planName });
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             event: 'submitQuizFormSuccess',

@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /terms
 Disallow: /privacy
+Disallow: /stats
 
 Allow: /furniture
 

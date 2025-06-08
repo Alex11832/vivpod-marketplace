@@ -1,42 +1,204 @@
-<!-- admin.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Статистика посетителей</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Аналитика по пользователям</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    html, body { height: 100%; margin: 0; font-family: sans-serif; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; word-break: break-all; }
+    th, td { padding: 5px 9px; border: 1px solid #ccc; font-size: 13px; word-break: break-all; max-width: 220px; white-space: normal;}
+    th { background: #e3e8f4; position: sticky; top: 0; z-index: 2; cursor: pointer; }
+    .nowrap { white-space: nowrap; }
+    .userId, .fingerprint { font-size: 11px; color: #666; word-break: break-all; }
+    .cookie { max-width: 180px; overflow-x: auto; font-size: 10px; word-break: break-all; }
+    .expand-row { background: #f8f8ff; }
+    .pointer { cursor: pointer; }
+    .expanded td { background: #eef2f9; }
+    .highlight { background: #ffe9c2 !important; }
+    tbody tr:hover:not(.expand-row) { background: #f2f6fc; }
+    .details-table th, .details-table td { font-size:12px; }
+  </style>
 </head>
 <body>
-  <h1>Статистика посещений</h1>
-  <canvas id="visitorsChart" width="600" height="300"></canvas>
-  <table border="1" id="statTable"></table>
+  <h1>Пользователи и их сессии</h1>
+  <table id="statTable"></table>
   <script>
-    fetch('http://5.23.54.56:3000/stats')
+    const ACTIONS = {
+      'pageview': 'Открытие страницы',
+      'unload': 'Покинул страницу',
+      'modal-open': 'Открыл модалку',
+      'form-submit': 'Отправил форму',
+      'sms-click': 'Клик по SMS',
+      'whatsapp-click': 'Клик по WhatsApp'
+    };
+    function formatDate(dtStr) {
+      if (!dtStr) return '';
+      let dt = new Date(dtStr);
+      return dt.toLocaleString('ru-RU', { timeZone: 'America/New_York' });
+    }
+    let sortBy = 'lastDate', sortDir = -1; // По умолчанию новые сверху
+
+    fetch('https://stats.artfixpro.com/stats')
       .then(res => res.json())
       .then(data => {
-        // Таблица:
-        let rows = '<tr><th>Дата</th><th>IP</th><th>Страна</th><th>Клики</th><th>Время на сайте (сек)</th></tr>';
-        let days = {}, clicks = [];
+        let users = {};
         data.forEach(d => {
-          const date = d.date ? d.date.substr(0,10) : '';
-          rows += `<tr><td>${date}</td><td>${d.ip || ''}</td><td>${d.country || ''}</td><td>${d.clicks || 0}</td><td>${d.sessionDuration || 0}</td></tr>`;
-          if (date) days[date] = (days[date] || 0) + 1;
-          if (d.clicks) clicks.push(d.clicks);
+          if (!d.userId) return;
+          if (!users[d.userId]) users[d.userId] = [];
+          users[d.userId].push(d);
         });
-        document.getElementById('statTable').innerHTML = rows;
+        let userList = Object.entries(users).map(([id, sessions]) => {
+          let srt = [...sessions].sort((a,b) => new Date(a.date) - new Date(b.date));
+          let allPageviews = srt.filter(ev => ev.action === 'pageview');
+          let startDate = allPageviews[0]?.date || srt[0]?.date || '';
+          let lastEvent = srt[srt.length-1];
+          let firstPageview = allPageviews[0];
+          let sessionUrl = firstPageview?.url || '';
+          let sessionReferrer = firstPageview?.referrer || '';
+          return {
+            userId: id,
+            startDate,
+            lastDate: lastEvent?.date || '',
+            fingerprint: lastEvent?.fingerprint || '',
+            ip: lastEvent?.ip || '',
+            zip: lastEvent?.zip || '',
+            sessionCount: allPageviews.length,
+            platform: lastEvent?.platform || '',
+            language: lastEvent?.language || '',
+            screen: lastEvent?.screen ? (lastEvent.screen.w + "x" + lastEvent.screen.h) : '',
+            timezone: lastEvent?.timezone || '',
+            cookies: lastEvent?.cookies || '',
+            sessionUrl,
+            sessionReferrer,
+            events: srt
+          };
+        });
 
-        // График по дням:
-        const ctx = document.getElementById('visitorsChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Object.keys(days),
-            datasets: [{
-              label: 'Посетителей в день',
-              data: Object.values(days)
-            }]
-          }
-        });
+        function compare(a, b, col) {
+          let av = a[col] || '', bv = b[col] || '';
+          if (col === 'sessionCount') return (av - bv) * sortDir;
+          if (col === 'startDate' || col === 'lastDate') return (new Date(av) - new Date(bv)) * sortDir;
+          return av.toString().localeCompare(bv.toString(), undefined, {numeric:true}) * sortDir;
+        }
+        function sortTable(col) {
+          sortBy = col; sortDir = sortBy === col ? -sortDir : -1;
+          userList.sort((a, b) => compare(a, b, sortBy));
+          renderTable();
+        }
+
+        function renderTable() {
+          let rows = `
+            <thead>
+            <tr>
+              <th></th>
+              <th onclick="sortTable('startDate')">Дата/время<br>начала сессии</th>
+              <th onclick="sortTable('ip')">IP</th>
+              <th onclick="sortTable('zip')">ZIP</th>
+              <th onclick="sortTable('sessionCount')">Кол-во сессий</th>
+              <th onclick="sortTable('platform')">Платформа</th>
+              <th onclick="sortTable('language')">Язык</th>
+              <th onclick="sortTable('screen')">Экран</th>
+              <th onclick="sortTable('timezone')">Часовой пояс</th>
+              <th onclick="sortTable('url')">Страница</th>
+              <th onclick="sortTable('url')">Referr</th>
+              <th onclick="sortTable('userId')">UserID</th>
+              <th onclick="sortTable('fingerprint')">Fingerprint</th>
+            </tr>
+            </thead>
+            <tbody>
+          `;
+          userList.forEach(user => {
+            rows += `<tr class="pointer" data-user="${user.userId}">
+              <td>➕</td>
+              <td class="nowrap">${formatDate(user.startDate)}</td>
+              <td class="nowrap">${user.ip || ''}</td>
+              <td class="nowrap">${user.zip || ''}</td>
+              <td class="nowrap">${user.sessionCount}</td>
+              <td class="nowrap">${user.platform}</td>
+              <td class="nowrap">${user.language}</td>
+              <td class="nowrap">${user.screen}</td>
+              <td class="nowrap">${user.timezone}</td>
+              <td> ${user.sessionUrl||''}</td>
+              <td> ${user.sessionReferrer||''}</td>
+              <td class="userId" style="word-break: break-all; white-space: normal;">${user.userId}</td>
+              <td class="fingerprint">${user.fingerprint}</td>
+            </tr>
+            <tr class="expand-row" data-detail="${user.userId}" style="display:none">
+              <td colspan="12">
+                <b>Детальная активность:</b>
+                <table border="1" class="details-table" style="margin-top:7px; width:100%;">
+                  <tr>
+                    <th>Дата</th>
+                    <th>Событие</th>
+                    <th>Страница</th>
+                    <th>Реферер</th>
+                    <th>Клики</th>
+                    <th>Время на странице</th>
+                  </tr>
+                  ${renderUserEvents(user.events)}
+                </table>
+              </td>
+            </tr>`;
+          });
+          rows += '</tbody>';
+          document.getElementById('statTable').innerHTML = rows;
+
+          document.querySelectorAll('tr[data-user]').forEach(tr => {
+            tr.onclick = function() {
+              const userId = this.getAttribute('data-user');
+              const detailRow = document.querySelector('tr[data-detail="'+userId+'"]');
+              const expanded = detailRow.style.display !== 'none';
+              document.querySelectorAll('tr.expand-row').forEach(row => row.style.display = 'none');
+              document.querySelectorAll('tr[data-user]').forEach(row => row.classList.remove('expanded'));
+              if (!expanded) {
+                detailRow.style.display = '';
+                this.classList.add('expanded');
+              }
+            };
+          });
+        }
+
+        function renderUserEvents(events) {
+          let prevEvent = null;
+          let html = '';
+          events.forEach((ev, i) => {
+            let dt = prevEvent ? (new Date(ev.date) - new Date(prevEvent.date))/1000 : 0;
+            let timeOnPage = '';
+            if (ev.action === 'pageview') {
+              let nextEv = events.slice(i+1).find(e=>e.action!=='pageview');
+              if (nextEv) {
+                timeOnPage = ((new Date(nextEv.date) - new Date(ev.date))/1000) + 'c';
+              } else {
+                let unloadEv = events.slice(i+1).find(e=>e.action==='unload');
+                if (unloadEv) {
+                  timeOnPage = ((new Date(unloadEv.date) - new Date(ev.date))/1000) + 'c';
+                } else {
+                  timeOnPage = '-';
+                }
+              }
+            } else {
+              timeOnPage = (ev.sessionSeconds ? ev.sessionSeconds + 'c' : '-');
+            }
+            html += `
+              <tr>
+                <td class="nowrap">${formatDate(ev.date)}
+                  ${dt && i>0 ? `<br><span style="color:#888;">(+${Math.round(dt)} сек)</span>` : ''}
+                </td>
+                <td>${ACTIONS[ev.action] || ev.action || ''}</td>
+                <td>${ev.url || ''}</td>
+                <td>${ev.referrer || ''}</td>
+                <td>${ev.clicks || 0}</td>
+                <td class="nowrap">${timeOnPage}</td>
+              </tr>
+            `;
+            prevEvent = ev;
+          });
+          return html;
+        }
+
+        window.sortTable = sortTable;
+        renderTable();
       });
   </script>
 </body>
