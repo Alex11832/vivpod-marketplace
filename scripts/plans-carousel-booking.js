@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       plansOverlay.classList.remove("hidden")
       document.body.classList.add("modal-open")
 
-      window.sendStats('modal-open', { modal: 'plans' });
+      window.sendEvent('modal-open', { modal: 'plans' });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'quizStarted' });
 
@@ -142,6 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="text" name="lastName" id="last-name" required placeholder="e.g. Smith">
           </div>
           <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="form-group">
             <label for="phone">Phone:</label>
             <input type="tel" name="phone" id="phone" required placeholder="(123) 456-7890">
           </div>
@@ -226,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
           time: form.querySelector("#time").value,
           firstName: form.querySelector("#first-name").value,
           lastName: form.querySelector("#last-name").value,
+          email: form.querySelector("#email").value,
           phone: form.querySelector("#phone").value,
           address: form.querySelector("#address").value,
           zip: form.querySelector("#zip").value,
@@ -246,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
           🗓 Date: ${formattedDate}
           ⏰ Time: ${data.time}
           👤 Name: ${data.firstName} ${data.lastName}
+          📧 Email: ${data.email}
           📞 Phone: ${phoneLink}
           📍 Address: ${data.address}
           📮 ZIP: ${data.zip} `
@@ -259,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         setTimeout(() => {
-          window.sendStats('form-submit', { plan: planName });
+          window.sendEvent('form-submit', { plan: planName });
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             event: 'submitQuizFormSuccess',
@@ -341,7 +347,28 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             return response.json()
           })
-          
+          .then(() => {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: 'submitQuizFormSuccess',
+              value: cartTotal,
+              enhanced_conversion_data: {
+                email: data.email,
+                phone_number: phoneLink, // Передаём телефон в формате +1...
+                first_name: data.firstName,
+                last_name: data.lastName,
+                // address: data.address, // Можешь добавить, если будешь использовать адрес
+                // zip: data.zip,
+              }
+            });
+            console.log("✅ cartTotal value pushed:", cartTotal);
+            console.log("✅ enhanced_conversion_data pushed:", {
+              phone_number: phoneLink,
+              first_name: data.firstName,
+              last_name: data.lastName
+            })
+          })
+
         .catch(() => {
           alert("❌ Failed to send the message. Please try again or contact us directly.");
         });

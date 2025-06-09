@@ -47,17 +47,17 @@ function sendEvent(eventType, extra = {}) {
   const platform = navigator.platform;
   const browser = navigator.userAgent;
   const date = new Date().toISOString();
-  let event = {
-    userId, fingerprint, eventType, url, referrer,
+    let event = {
+    userId, fingerprint, action: eventType, url, referrer,
     date, screen, language, timezone, platform, browser,
     clickCount, ...extra
   };
-  sessionEvents.push({ eventType, timestamp: Date.now() });
+  sessionEvents.push({ action: eventType, timestamp: Date.now() });
   navigator.sendBeacon('https://stats.artfixpro.com/collect', JSON.stringify(event));
 }
 window.addEventListener('load', () => sendEvent('pageview'));
 window.addEventListener('beforeunload', () => sendEvent('unload'));
-window.addEventListener('click', () => { clickCount++; sendEvent('click'); });
+// window.addEventListener('click', () => { clickCount++; sendEvent('click'); });
 
 // Пример: отслеживание открытия модального окна
 window.openModal = function(modalName) {
