@@ -52,3 +52,44 @@ document.addEventListener("click", function(e) {
     }
   }
 });
+
+// Обработка кнопок телефона и почта в навигации
+document.addEventListener('DOMContentLoaded', function() {
+  // Десктопные копии
+  document.querySelectorAll('.nav_contact_links .copy-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Сначала убираем у всех .copy-btn
+      document.querySelectorAll('.nav_contact_links .copy-btn').forEach(b => b.classList.remove('copied'));
+      const value = btn.getAttribute('data-copy');
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(value).then(function() {
+        setTimeout(function() {
+          btn.classList.remove('copied');
+          btn.blur();
+        }, 1200);
+      });
+    });
+  });
+
+  // Мобильные копии
+  document.querySelectorAll('.nav_mobile_link .copy-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelectorAll('.nav_mobile_link .copy-btn').forEach(b => b.classList.remove('copied'));
+      const href = btn.closest('.nav_mobile_link').getAttribute('href');
+      let value = '';
+      if (href.startsWith('tel:')) value = href.replace('tel:', '');
+      else if (href.startsWith('mailto:')) value = href.replace('mailto:', '');
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(value).then(function() {
+        setTimeout(function(){
+          btn.classList.remove('copied');
+          btn.blur();
+        }, 1000);
+      });
+    });
+  });
+});

@@ -29,7 +29,7 @@
 <title>TV Mounting Service in NYC | Same-Day Wall Install – ArtFixPro</title>
 
 <link rel="stylesheet" href="styles/critical.css?v=1.01">
-<link rel="preload" href="styles/style.css?v=1.01" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="styles/style.css?v=1.02" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="css/style.css?v=1.01"></noscript>
 
 <!-- JSON-LD Structured Data -->
@@ -100,47 +100,79 @@
 </script>
 </head>
 <body>
-<!-- Header/Banner Section -->
-<header class="site-header">
-  <div class="container">
-  <div class="header-banner">
-    <a href="./" class="header-logo">
-      <img alt="ArtFixPro Banner Logo" loading="lazy" src="assets/logo-banner.webp" width="100" height="60"/>
-    </a>
-    <div class="header-contact">
-      <a href="sms:+19174981863?body=Hi, I'm interested in booking a TV mounting service with ArtFixPro. Can you tell me about availability and pricing?" class="phone-number">
-        <img alt="Phone" loading="lazy" src="assets/icons/phone.svg" width="20" height="20"/>
-        +1 (917) 498-1863
-      </a>
-      <a href="mailto:info@artfixpro.com" class="email">
-        <img alt="Email" loading="lazy" src="assets/icons/email.svg" width="20" height="20"/>
-        info@artfixpro.com
-      </a>
-    </div>
-    </div>
-  </div>
-</header>
 
 <!-- Navigation -->
 <div class="nav_secondary container">
   <nav>
-  <div class="nav_left">
-  <div class="nav_menu_item nav_menu_item_drop">
-  <p>Our Services</p>
-  <div class="nav_menu_item_drop_list">
-  <a href="tv-mounting"><p>TV Mounting Service</p></a>
-  <a href="furniture"><p>Furniture Assembly Service</p></a>
-  <a href="wall-hanging"><p>Wall Hanging &amp; Installation</p></a>
-  </div>
-  </div>
-  <div class="nav_menu_item to_contacts"><a href="#contacts_block"><p>Contact Us</p></a></div>
-  </div>
-  <a class="nav_logo" href="./">
-  <img alt="ArtFixPro Logo" loading="lazy" src="assets/logo.webp" width="133" height="40"/>
-  </a>
-  <div class="nav_right"></div>
+    <div class="nav_left">
+      <div class="nav_menu_item nav_menu_item_drop">
+        <p>Our Services</p>
+        <div class="nav_menu_item_drop_list">
+          <a href="tv-mounting"><p>TV Mounting Service</p></a>
+          <a href="furniture"><p>Furniture Assembly Service</p></a>
+          <a href="wall-hanging"><p>Wall Hanging &amp; Installation</p></a>
+        </div>
+      </div>
+      <div class="nav_menu_item to_contacts">
+        <a href="./#contacts_block"><p>Contact Us</p></a>
+      </div>
+    </div>
+    <a class="nav_logo" href="./">
+      <img alt="ArtFixPro Logo" loading="lazy" src="assets/logo.webp" width="133" height="40"/>
+    </a>
+    <div class="nav_right">
+      <!-- Desktop contacts (видны только на десктопе) -->
+      <div class="nav_contact_links">
+        <div class="header-contact">
+          <div class="phone-number contact-link tooltip-container">
+            <a href="tel:+19174981863">
+              <img alt="Phone" loading="lazy" src="assets/icons/phone.svg" width="20" height="20"/>
+              +1 (917) 498-1863
+            </a>
+            <button class="copy-btn" data-copy="+19174981863" aria-label="Copy phone">
+              <img src="assets/icons/copy.svg" alt="Copy" width="20" height="20">
+              <span class="tooltip-text copy-tooltip">Copied!</span>
+            </button>
+            
+          </div>
+          <div class="email contact-link tooltip-container">
+            <a href="mailto:info@artfixpro.com">
+              <img alt="Email" loading="lazy" src="assets/icons/email.svg" width="20" height="20"/>
+              info@artfixpro.com
+            </a>
+            <button class="copy-btn" data-copy="info@artfixpro.com" aria-label="Copy email">
+              <img src="assets/icons/copy.svg" alt="Copy" width="20" height="20">
+              <span class="tooltip-text copy-tooltip">Copied!</span>
+            </button>
+            
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
-  </div>
+
+  <!-- Компактный мобильный блок контактов (только для мобильных) -->
+  <div class="nav_mobile_contacts_row">
+  <a href="tel:+19174981863" class="nav_mobile_link" aria-label="Call phone">
+    <img src="assets/icons/phone.svg" alt="Phone" width="15" height="15" />
+    <span class="nav_contact_text">+1 (917) 498-1863</span>
+    <button class="copy-btn" type="button" tabindex="-1" aria-label="Copy phone">
+      <img src="assets/icons/copy.svg" alt="Copy" width="15" height="15" />
+      <span class="copy-tooltip">Copied!</span>
+    </button>
+  </a>
+  <span class="divider" aria-hidden="true">|</span>
+  <a href="mailto:info@artfixpro.com" class="nav_mobile_link" aria-label="Send email">
+    <img src="assets/icons/email.svg" alt="Email" width="15" height="15" />
+    <span class="nav_contact_text">info@artfixpro.com</span>
+    <button class="copy-btn" type="button" tabindex="-1" aria-label="Copy email">
+      <img src="assets/icons/copy.svg" alt="Copy" width="15" height="15" />
+      <span class="copy-tooltip">Copied!</span>
+    </button>
+  </a>
+</div>
+
+</div>
 
 <!-- HERO SECTION -->
 <section class="hero-tv-mounting container">
@@ -683,7 +715,7 @@
 
 <script src="scripts/splide.min.js"></script>
 <script src="scripts/plans-carousel-booking.js?v=1.01" defer></script>
-<script src="scripts/modal-esc-chat.js?v=1.01" defer></script>
+<script src="scripts/modal-esc-chat.js?v=1.02" defer></script>
 
 
 
