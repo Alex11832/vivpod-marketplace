@@ -158,6 +158,10 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="text" name="zip" id="zip" required placeholder="5-digit ZIP code" maxlength="5" inputmode="numeric">
           </div>
           <input type="hidden" name="selectedPlanName" value="${planName}">
+          <div class="form-group">
+            <label for="comment">Comment (optional):</label>
+            <textarea name="comment" id="comment" placeholder="Describe your situation or leave a note (optional)" rows="2" style="resize:vertical"></textarea>
+          </div>
           <button type="submit" class="green_sumbit_btn">Confirm Booking</button>
         </form>
       `;
@@ -234,6 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
           phone: form.querySelector("#phone").value,
           address: form.querySelector("#address").value,
           zip: form.querySelector("#zip").value,
+          comment: form.querySelector("#comment").value || "",
         };
 
         // Формат даты
@@ -254,8 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
           📧 Email: ${data.email}
           📞 Phone: ${phoneLink}
           📍 Address: ${data.address}
-          📮 ZIP: ${data.zip} `
-
+          📮 ZIP: ${data.zip} 
+          ${data.comment ? "💬 Comment: " + data.comment : ""}
+          `
         // Calculate cart total based on plan
         let cartTotal = 120;
         if (planName.includes("Smart")) {
