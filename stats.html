@@ -7,9 +7,9 @@
   <style>
     html, body { height: 100%; margin: 0; font-family: sans-serif; }
     table { border-collapse: collapse; width: 100%; table-layout: fixed; word-break: break-all; }
-    th, td { padding: 5px 9px; border: 1px solid #ccc; font-size: 13px; word-break: break-all; max-width: 220px; white-space: normal;}
+    th, td { padding: 5px 9px; border: 1px solid #ccc; font-size: 13px; word-break: break-word; max-width: 220px; white-space: pre-line; vertical-align: top;}
     th { background: #e3e8f4; position: sticky; top: 0; z-index: 2; cursor: pointer; }
-    .nowrap { white-space: nowrap; }
+    /* .nowrap { white-space: nowrap; } */
     .userId, .fingerprint { font-size: 11px; color: #666; word-break: break-all; }
     .cookie { max-width: 180px; overflow-x: auto; font-size: 10px; word-break: break-all; }
     .expand-row { background: #f8f8ff; }
@@ -18,188 +18,247 @@
     .highlight { background: #ffe9c2 !important; }
     tbody tr:hover:not(.expand-row) { background: #f2f6fc; }
     .details-table th, .details-table td { font-size:12px; }
+    .geo-wait { color: #888; font-size: 11px; }
   </style>
 </head>
 <body>
   <h1>Пользователи и их сессии</h1>
+  <button id="geoUpdateBtn" style="margin:14px 0 6px 8px; padding:7px 16px; font-size:15px;">Обновить GEO по IP</button>
   <table id="statTable"></table>
+
   <script>
-    const ACTIONS = {
-      'pageview': 'Открытие страницы',
-      'unload': 'Покинул страницу',
-      'modal-open': 'Открыл модалку',
-      'form-submit': 'Отправил форму',
-      'sms-click': 'Клик по SMS',
-      'whatsapp-click': 'Клик по WhatsApp'
-    };
-    function formatDate(dtStr) {
-      if (!dtStr) return '';
-      let dt = new Date(dtStr);
-      return dt.toLocaleString('ru-RU', { timeZone: 'America/New_York' });
+const ACTIONS = {
+  'pageview': 'Открытие страницы',
+  'unload': 'Покинул страницу',
+  'modal-open': 'Открыл модалку',
+  'form-submit': 'Отправил форму',
+  'sms-click': 'Клик по SMS',
+  'whatsapp-click': 'Клик по WhatsApp'
+};
+function formatDate(dtStr) {
+  if (!dtStr) return '';
+  let dt = new Date(dtStr);
+  return dt.toLocaleString('ru-RU', { timeZone: 'America/New_York' });
+}
+let sortBy = 'lastDate', sortDir = -1; // По умолчанию новые сверху
+
+fetch('https://stats.artfixpro.com/stats')
+  .then(res => res.json())
+  .then(data => {
+    let users = {};
+    data.forEach(d => {
+      if (!d.userId) return;
+      if (!users[d.userId]) users[d.userId] = [];
+      users[d.userId].push(d);
+    });
+    let userList = Object.entries(users).map(([id, sessions]) => {
+      let srt = [...sessions].sort((a,b) => new Date(a.date) - new Date(b.date));
+      let allPageviews = srt.filter(ev => ev.action === 'pageview');
+      let startDate = allPageviews[0]?.date || srt[0]?.date || '';
+      let lastEvent = srt[srt.length-1];
+      let firstPageview = allPageviews[0];
+      let sessionUrl = firstPageview?.url || '';
+      let sessionReferrer = firstPageview?.referrer || '';
+      return {
+        userId: id,
+        startDate,
+        lastDate: lastEvent?.date || '',
+        fingerprint: lastEvent?.fingerprint || '',
+        ip: lastEvent?.ip || '',
+        zip: lastEvent?.zip || '',
+        sessionCount: allPageviews.length,
+        platform: lastEvent?.platform || '',
+        language: lastEvent?.language || '',
+        screen: lastEvent?.screen || '',
+        timezone: lastEvent?.timezone || '',
+        cookies: lastEvent?.cookies || '',
+        sessionUrl,
+        sessionReferrer,
+        events: srt
+      };
+    });
+
+    function compare(a, b, col) {
+      let av = a[col] || '', bv = b[col] || '';
+      if (col === 'sessionCount') return (av - bv) * sortDir;
+      if (col === 'startDate' || col === 'lastDate') return (new Date(av) - new Date(bv)) * sortDir;
+      return av.toString().localeCompare(bv.toString(), undefined, {numeric:true}) * sortDir;
     }
-    let sortBy = 'lastDate', sortDir = -1; // По умолчанию новые сверху
+    function sortTable(col) {
+      sortBy = col; sortDir = sortBy === col ? -sortDir : -1;
+      userList.sort((a, b) => compare(a, b, sortBy));
+      renderTable();
+    }
 
-    fetch('https://stats.artfixpro.com/stats')
-      .then(res => res.json())
-      .then(data => {
-        let users = {};
-        data.forEach(d => {
-          if (!d.userId) return;
-          if (!users[d.userId]) users[d.userId] = [];
-          users[d.userId].push(d);
-        });
-        let userList = Object.entries(users).map(([id, sessions]) => {
-          let srt = [...sessions].sort((a,b) => new Date(a.date) - new Date(b.date));
-          let allPageviews = srt.filter(ev => ev.action === 'pageview');
-          let startDate = allPageviews[0]?.date || srt[0]?.date || '';
-          let lastEvent = srt[srt.length-1];
-          let firstPageview = allPageviews[0];
-          let sessionUrl = firstPageview?.url || '';
-          let sessionReferrer = firstPageview?.referrer || '';
-          return {
-            userId: id,
-            startDate,
-            lastDate: lastEvent?.date || '',
-            fingerprint: lastEvent?.fingerprint || '',
-            ip: lastEvent?.ip || '',
-            zip: lastEvent?.zip || '',
-            sessionCount: allPageviews.length,
-            platform: lastEvent?.platform || '',
-            language: lastEvent?.language || '',
-            screen: lastEvent?.screen ? (lastEvent.screen.w + "x" + lastEvent.screen.h) : '',
-            timezone: lastEvent?.timezone || '',
-            cookies: lastEvent?.cookies || '',
-            sessionUrl,
-            sessionReferrer,
-            events: srt
-          };
-        });
+    // Сортировка по умолчанию: новые сверху!
+    userList.sort((a, b) => compare(a, b, 'lastDate'));
 
-        function compare(a, b, col) {
-          let av = a[col] || '', bv = b[col] || '';
-          if (col === 'sessionCount') return (av - bv) * sortDir;
-          if (col === 'startDate' || col === 'lastDate') return (new Date(av) - new Date(bv)) * sortDir;
-          return av.toString().localeCompare(bv.toString(), undefined, {numeric:true}) * sortDir;
-        }
-        function sortTable(col) {
-          sortBy = col; sortDir = sortBy === col ? -sortDir : -1;
-          userList.sort((a, b) => compare(a, b, sortBy));
-          renderTable();
-        }
+    function updateAllGeoInfo() {
+  document.querySelectorAll('.zip-lookup, .isp-lookup').forEach(cell => {
+    const ip = cell.getAttribute('data-ip');
+    if (!ip || ip === "127.0.0.1" || ip === "::1") {
+      cell.textContent = '-';
+      return;
+    }
+    cell.textContent = 'Загрузка...';
+    getIpInfo(ip, info => {
+      if (cell.classList.contains('zip-lookup')) cell.textContent = info.postal || '-';
+      if (cell.classList.contains('isp-lookup')) cell.textContent = info.org || '-';
+    });
+  });
+}
 
-        function renderTable() {
-          let rows = `
-            <thead>
-            <tr>
-              <th></th>
-              <th onclick="sortTable('startDate')">Дата/время<br>начала сессии</th>
-              <th onclick="sortTable('ip')">IP</th>
-              <th onclick="sortTable('zip')">ZIP</th>
-              <th onclick="sortTable('sessionCount')">Кол-во сессий</th>
-              <th onclick="sortTable('platform')">Платформа</th>
-              <th onclick="sortTable('language')">Язык</th>
-              <th onclick="sortTable('screen')">Экран</th>
-              <th onclick="sortTable('timezone')">Часовой пояс</th>
-              <th onclick="sortTable('url')">Страница</th>
-              <th onclick="sortTable('url')">Referr</th>
-              <th onclick="sortTable('userId')">UserID</th>
-              <th onclick="sortTable('fingerprint')">Fingerprint</th>
-            </tr>
-            </thead>
-            <tbody>
-          `;
-          userList.forEach(user => {
-            rows += `<tr class="pointer" data-user="${user.userId}">
-              <td>➕</td>
-              <td class="nowrap">${formatDate(user.startDate)}</td>
-              <td class="nowrap">${user.ip || ''}</td>
-              <td class="nowrap">${user.zip || ''}</td>
-              <td class="nowrap">${user.sessionCount}</td>
-              <td class="nowrap">${user.platform}</td>
-              <td class="nowrap">${user.language}</td>
-              <td class="nowrap">${user.screen}</td>
-              <td class="nowrap">${user.timezone}</td>
-              <td> ${user.sessionUrl||''}</td>
-              <td> ${user.sessionReferrer||''}</td>
-              <td class="userId" style="word-break: break-all; white-space: normal;">${user.userId}</td>
-              <td class="fingerprint">${user.fingerprint}</td>
-            </tr>
-            <tr class="expand-row" data-detail="${user.userId}" style="display:none">
-              <td colspan="12">
-                <b>Детальная активность:</b>
-                <table border="1" class="details-table" style="margin-top:7px; width:100%;">
-                  <tr>
-                    <th>Дата</th>
-                    <th>Событие</th>
-                    <th>Страница</th>
-                    <th>Реферер</th>
-                    <th>Клики</th>
-                    <th>Время на странице</th>
-                  </tr>
-                  ${renderUserEvents(user.events)}
-                </table>
-              </td>
-            </tr>`;
-          });
-          rows += '</tbody>';
-          document.getElementById('statTable').innerHTML = rows;
-
-          document.querySelectorAll('tr[data-user]').forEach(tr => {
-            tr.onclick = function() {
-              const userId = this.getAttribute('data-user');
-              const detailRow = document.querySelector('tr[data-detail="'+userId+'"]');
-              const expanded = detailRow.style.display !== 'none';
-              document.querySelectorAll('tr.expand-row').forEach(row => row.style.display = 'none');
-              document.querySelectorAll('tr[data-user]').forEach(row => row.classList.remove('expanded'));
-              if (!expanded) {
-                detailRow.style.display = '';
-                this.classList.add('expanded');
-              }
-            };
-          });
-        }
-
-        function renderUserEvents(events) {
-          let prevEvent = null;
-          let html = '';
-          events.forEach((ev, i) => {
-            let dt = prevEvent ? (new Date(ev.date) - new Date(prevEvent.date))/1000 : 0;
-            let timeOnPage = '';
-            if (ev.action === 'pageview') {
-              let nextEv = events.slice(i+1).find(e=>e.action!=='pageview');
-              if (nextEv) {
-                timeOnPage = ((new Date(nextEv.date) - new Date(ev.date))/1000) + 'c';
-              } else {
-                let unloadEv = events.slice(i+1).find(e=>e.action==='unload');
-                if (unloadEv) {
-                  timeOnPage = ((new Date(unloadEv.date) - new Date(ev.date))/1000) + 'c';
-                } else {
-                  timeOnPage = '-';
-                }
-              }
-            } else {
-              timeOnPage = (ev.sessionSeconds ? ev.sessionSeconds + 'c' : '-');
-            }
-            html += `
+    function renderTable() {
+      let rows = `
+        <thead>
+        <tr>
+          <th></th>
+          <th onclick="sortTable('startDate')">Дата/время<br>начала сессии</th>
+          <th onclick="sortTable('ip')">IP</th>
+          <th onclick="sortTable('zip')">ZIP</th>
+          <th onclick="sortTable('sessionCount')">Кол-во сессий</th>
+          <th onclick="sortTable('platform')">Платформа</th>
+          <th onclick="sortTable('language')">Язык</th>
+          <th onclick="sortTable('screen')">Экран</th>
+          <th onclick="sortTable('timezone')">Часовой пояс</th>
+          <th onclick="sortTable('url')">Страница</th>
+          <th onclick="sortTable('url')">Referr</th>
+          <th onclick="sortTable('userId')">UserID</th>
+          <th onclick="sortTable('fingerprint')">Fingerprint</th>
+        </tr>
+        </thead>
+        <tbody>
+      `;
+      userList.forEach(user => {
+        rows += `<tr class="pointer" data-user="${user.userId}">
+          <td>➕</td>
+          <td class="nowrap">${formatDate(user.lastDate)}</td>
+          <td class="nowrap">${user.ip || ''}</td>
+          <td class="nowrap zip-lookup" data-ip="${user.ip || ''}">Загрузка...</td>
+          <td class="nowrap">${user.sessionCount}</td>
+          <td class="nowrap">${user.platform}</td>
+          <td class="nowrap">${user.language}</td>
+          <td class="nowrap">${user.screen}</td>
+          <td class="nowrap">${user.timezone}</td>
+          <td> ${user.sessionUrl||''}</td>
+          <td> ${user.sessionReferrer||''}</td>
+          <td class="userId" style="word-break: break-all; white-space: normal;">${user.userId}</td>
+          <td class="fingerprint">${user.fingerprint}</td>
+        </tr>
+        <tr class="expand-row" data-detail="${user.userId}" style="display:none">
+          <td colspan="14">
+            <b>Детальная активность:</b>
+            <table border="1" class="details-table" style="margin-top:7px; width:100%;">
               <tr>
-                <td class="nowrap">${formatDate(ev.date)}
-                  ${dt && i>0 ? `<br><span style="color:#888;">(+${Math.round(dt)} сек)</span>` : ''}
-                </td>
-                <td>${ACTIONS[ev.action] || ev.action || ''}</td>
-                <td>${ev.url || ''}</td>
-                <td>${ev.referrer || ''}</td>
-                <td>${ev.clicks || 0}</td>
-                <td class="nowrap">${timeOnPage}</td>
+                <th>Дата</th>
+                <th>Событие</th>
+                <th>Страница</th>
+                <th>Реферер</th>
+                <th>IP</th>
+                <th>ZIP</th>
+                <th>ISP</th>
               </tr>
-            `;
-            prevEvent = ev;
-          });
-          return html;
-        }
-
-        window.sortTable = sortTable;
-        renderTable();
+              ${renderUserEvents(user.events)}
+            </table>
+          </td>
+        </tr>`;
       });
-  </script>
+      rows += '</tbody>';
+      document.getElementById('statTable').innerHTML = rows;
+
+      document.querySelectorAll('tr[data-user]').forEach(tr => {
+        tr.onclick = function() {
+          const userId = this.getAttribute('data-user');
+          const detailRow = document.querySelector('tr[data-detail="'+userId+'"]');
+          const expanded = detailRow.style.display !== 'none';
+          document.querySelectorAll('tr.expand-row').forEach(row => row.style.display = 'none');
+          document.querySelectorAll('tr[data-user]').forEach(row => row.classList.remove('expanded'));
+          if (!expanded) {
+            detailRow.style.display = '';
+            this.classList.add('expanded');
+          }
+        };
+      });
+
+      // --- IP Info lookup для ZIP и ISP (geo/провайдер) ---
+      setTimeout(() => {
+        document.querySelectorAll('.zip-lookup, .isp-lookup').forEach(cell => {
+          const ip = cell.getAttribute('data-ip');
+          if (!ip || ip === "127.0.0.1" || ip === "::1") {
+            cell.textContent = '-';
+            return;
+          }
+          getIpInfo(ip, info => {
+            if (cell.classList.contains('zip-lookup')) cell.textContent = info.postal || '-';
+            if (cell.classList.contains('isp-lookup')) cell.textContent = info.org || '-';
+          });
+        });
+      }, 100);
+
+    }
+
+    document.getElementById('geoUpdateBtn').onclick = updateAllGeoInfo;
+
+    function renderUserEvents(events) {
+  let html = '';
+  events.forEach((ev, i) => {
+    let dt = i > 0 ? (new Date(ev.date) - new Date(events[i-1].date))/1000 : 0;
+    // Время на странице только для pageview
+    let timeOnPage = '';
+    if (ev.action === 'pageview') {
+      let nextEv = events.slice(i+1).find(e => e.action !== 'pageview');
+      if (nextEv) {
+        timeOnPage = `<br><span style="color:#3a6;font-size:12px;">на странице: ${(Math.round((new Date(nextEv.date) - new Date(ev.date))/1000))} сек</span>`;
+      }
+    }
+    html += `
+      <tr>
+        <td class="nowrap">
+          ${formatDate(ev.date)}
+          ${dt && i>0 ? `<br><span style="color:#888;">(+${Math.round(dt)} сек)</span>` : ''}
+          ${timeOnPage}
+        </td>
+        <td>${ACTIONS[ev.action] || ev.action || ''}</td>
+        <td>${ev.url || ''}</td>
+        <td>${ev.referrer || ''}</td>
+        <td>${ev.ip || ''}</td>
+        <td class="zip-lookup" data-ip="${ev.ip || ''}">-</td>
+        <td class="isp-lookup" data-ip="${ev.ip || ''}">-</td>
+      </tr>
+    `;
+  });
+  return html;
+}
+
+
+    window.sortTable = sortTable;
+    renderTable();
+  });
+
+// --- Кэширование и lookup IP (localStorage + сессия) ---
+const ipCache = JSON.parse(localStorage.getItem('ipinfoCache') || '{}');
+function saveIpCache() {
+  localStorage.setItem('ipinfoCache', JSON.stringify(ipCache));
+}
+function getIpInfo(ip, cb) {
+  if (!ip) return cb({});
+  // Если в кэше ошибка, не использовать её!
+  if (ipCache[ip] && !ipCache[ip].error && (ipCache[ip].org || ipCache[ip].postal)) {
+    return cb(ipCache[ip]);
+  }
+  fetch(`https://ipinfo.io/${ip}?token=0cf3cd0e669e01`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.error) {
+        ipCache[ip] = data;
+        saveIpCache();
+      }
+      cb(data);
+    })
+    .catch(() => cb({}));
+}
+
+</script>
+
 </body>
 </html>
