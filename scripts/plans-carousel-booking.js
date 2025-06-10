@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const openBtns = document.querySelectorAll("#openPlansBtn, #openPlansBtn2")
+  const openBtns = document.querySelectorAll("#openPlansBtn, #openPlansBtn2");
   const plansOverlay = document.getElementById("plansOverlay");
   const bookingOverlay = document.getElementById("bookingFormOverlay");
   const bookingCloseBtn = document.getElementById("bookingClose");
@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const planCards = document.querySelectorAll(".plan-card");
   const closePlansBtn = document.getElementById("plansClose");
 
-  // Закрытие окна бронирования по кнопке
   bookingCloseBtn?.addEventListener("click", () => {
     bookingOverlay.classList.add("hidden");
     document.body.classList.remove("modal-open");
@@ -16,32 +15,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   openBtns.forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      e.preventDefault()
-      plansOverlay.classList.remove("hidden")
-      document.body.classList.add("modal-open")
-
+      e.preventDefault();
+      plansOverlay.classList.remove("hidden");
+      document.body.classList.add("modal-open");
       window.sendEvent('modal-open', { modal: 'plans' });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'quizStarted' });
-
-      // Инициализируем карусель при открытии модального окна
-      setTimeout(initOverlayCarousel, 100)
-    })
-  })
+      setTimeout(initOverlayCarousel, 100);
+    });
+  });
 
   closePlansBtn?.addEventListener("click", () => {
-    plansOverlay.classList.add("hidden")
-    document.body.classList.remove("modal-open")
-  })
+    plansOverlay.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  });
 
   bookingCloseBtn?.addEventListener("click", () => {
-    bookingOverlay.classList.add("hidden")
-    document.body.classList.remove("modal-open")
-  })
-  
-  // === 2. КАРУСЕЛЬ ТАРИФОВ (планы, слайдер) ===
+    bookingOverlay.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  });
+
   function initOverlayCarousel() {
-    // Только мобильные и планшеты
     if (window.innerWidth >= 1025) {
       planCards.forEach(card => card.classList.add("plan-card-visible"));
       return;
@@ -70,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Свайпы на мобильных
     if (window.innerWidth < 1025 && carousel) {
       carousel.addEventListener("touchstart", handleTouchStart, { passive: true });
       carousel.addEventListener("touchmove", handleTouchMove, { passive: true });
@@ -90,14 +83,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       startX = null; moveX = null;
     }
-    // При изменении размера экрана
     window.addEventListener("resize", () => {
       if (window.innerWidth >= 1025) planCards.forEach(card => card.classList.add("plan-card-visible"));
       else updateCarousel();
     });
   }
 
-  // === 3. ОТКРЫТИЕ ФОРМЫ БРОНИРОВАНИЯ ===
   selectButtons.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -107,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
       bookingOverlay.classList.remove("hidden");
       document.body.classList.add("modal-open");
 
-      // === Форма бронирования ===
       bookingContainer.innerHTML = `
         <h2>Book: ${planName}</h2>
         <form id="bookingForm" novalidate>
@@ -166,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </form>
       `;
 
-      // Форматирование телефона
       const phoneInput = document.getElementById("phone");
       phoneInput.addEventListener("input", () => {
         let numbers = phoneInput.value.replace(/\D/g, "");
@@ -181,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Форматирование ZIP
       const zipInput = document.getElementById("zip");
       zipInput.addEventListener("input", () => {
         let digits = zipInput.value.replace(/\D/g, "");
@@ -189,25 +177,21 @@ document.addEventListener("DOMContentLoaded", () => {
         zipInput.value = digits;
       });
 
-      // Минимальная дата (сегодня)
       const dateInput = document.getElementById("date");
       const today = new Date().toISOString().split("T")[0];
       dateInput.setAttribute("min", today);
 
-      // === 4. ВАЛИДАЦИЯ И ОТПРАВКА ФОРМЫ ===
       const form = document.getElementById("bookingForm");
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         let isValid = true;
 
-        // Проверка всех полей
         form.querySelectorAll("input, select").forEach((input) => {
           if (!input.value.trim()) {
             input.classList.add("input-error");
             isValid = false;
             return;
           }
-          // ZIP — только 5 цифр
           if (input.id === "zip") {
             if (!/^\d{5}$/.test(input.value.trim())) {
               input.classList.add("input-error");
@@ -215,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
               return;
             }
           }
-          // Phone — только 10 цифр
           if (input.id === "phone") {
             if (input.value.replace(/\D/g, "").length !== 10) {
               input.classList.add("input-error");
@@ -228,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!isValid) return;
 
-        // Сбор данных формы
         const data = {
           date: form.querySelector("#date").value,
           time: form.querySelector("#time").value,
@@ -241,15 +223,12 @@ document.addEventListener("DOMContentLoaded", () => {
           comment: form.querySelector("#comment").value || "",
         };
 
-        // Формат даты
         const [year, month, day] = data.date.split('-');
         const formattedDate = `${month}/${day}/${year}`;
-        // Формат телефона
         const cleanPhone = data.phone.replace(/\D/g, "");
         const phoneLink = `+1${cleanPhone}`;
         const pageUrl = window.location.href;
 
-        // --- Отправка данных через Telegram Bot API ---
         const message = `📺 New TV Mounting Request:
           🌐 Order from: ${pageUrl}
           💰 Plan: ${planName}
@@ -262,14 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
           📮 ZIP: ${data.zip} 
           ${data.comment ? "💬 Comment: " + data.comment : ""}
           `
-        // Calculate cart total based on plan
         let cartTotal = 120;
         if (planName.includes("Smart")) {
           cartTotal = 150;
         } else if (planName.includes("Pro")) {
           cartTotal = 200;
         }
-        
+
         setTimeout(() => {
           window.sendEvent('form-submit', { plan: planName });
           window.dataLayer = window.dataLayer || [];
@@ -280,19 +258,10 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("✅ cartTotal value pushed:", cartTotal);
         }, 100);
 
-
-        // Prepare the confirmation message template
         const confirmationMessage = `✅ Hello ${data.firstName}! Thank you for choosing ArtFixPro LLC. Your order has been confirmed. The service cost is $${cartTotal.toFixed(2)}, and our technician will arrive on ${formattedDate} at ${data.time}. We appreciate your trust and look forward to assisting you!`
-
-        // Prepare the reschedule message template
         const rescheduleMessage = `⚠️ Hello ${data.firstName}! Thank you for contacting ArtFixPro LLC. The service cost is $${cartTotal.toFixed(2)}. Unfortunately, the date/time you selected is already booked. Would you like to reschedule for ${formattedDate} at ${data.time}? Please let us know if that works for you. We appreciate your understanding!`
-
-        // Use a proxy server or serverless function to avoid CORS issues
-        // For example, you can use a service like cors-anywhere or create your own proxy
-        const proxyUrl = "https://cors-anywhere.herokuapp.com/"
         const telegramApiUrl = "https://api.telegram.org/bot8064031856:AAGYg6dkeDBdHp0C8XmV9UdNO20TedaMLd0/sendMessage"
 
-        // Send the main booking message
         fetch(telegramApiUrl, {
           method: "POST",
           headers: {
@@ -302,25 +271,19 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ chat_id: "443139059", text: message }),
         })
           .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok")
-            }
-            return response.json()
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
           })
           .then(() => {
-            window.dataLayer = window.dataLayer || [];
-        
-
             bookingContainer.innerHTML = `
               <div class="success-message">
                 <div class="success-icon">✓</div>
                 <h2>Thank you!</h2>
                 <p>Your booking request has been submitted.</p>
               </div>
-              `          
+              `;
           })
           .then(() => {
-            // Send the confirmation message
             return fetch(telegramApiUrl, {
               method: "POST",
               headers: {
@@ -328,16 +291,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 Origin: "https://artfixpro.com",
               },
               body: JSON.stringify({ chat_id: "443139059", text: confirmationMessage }),
-            })
+            });
           })
           .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok")
-            }
-            return response.json()
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
           })
           .then(() => {
-            // Send the reschedule message (in a real scenario, you might want to conditionally send this)
             return fetch(telegramApiUrl, {
               method: "POST",
               headers: {
@@ -345,13 +305,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 Origin: "https://artfixpro.com",
               },
               body: JSON.stringify({ chat_id: "443139059", text: rescheduleMessage }),
-            })
+            });
           })
           .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok")
-            }
-            return response.json()
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
           })
           .then(() => {
             window.dataLayer = window.dataLayer || [];
@@ -360,33 +318,48 @@ document.addEventListener("DOMContentLoaded", () => {
               value: cartTotal,
               enhanced_conversion_data: {
                 email: data.email,
-                phone_number: phoneLink, // Передаём телефон в формате +1...
+                phone_number: phoneLink,
                 first_name: data.firstName,
                 last_name: data.lastName,
-                // address: data.address, // Можешь добавить, если будешь использовать адрес
-                // zip: data.zip,
               }
             });
-            console.log("✅ cartTotal value pushed:", cartTotal);
-            console.log("✅ enhanced_conversion_data pushed:", {
-              phone_number: phoneLink,
-              first_name: data.firstName,
-              last_name: data.lastName
-            })
-          })
 
-        .catch(() => {
-          alert("❌ Failed to send the message. Please try again or contact us directly.");
-        });
+            // ОТПРАВКА EMAIL КЛИЕНТУ
+            return fetch('https://stats.artfixpro.com/api/send-confirmation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: data.email,
+                name: data.firstName,
+                plan: planName,
+                date: formattedDate,
+                time: data.time,
+                price: cartTotal,
+                address: data.address,
+                phone: data.phone,
+                comment: data.comment
+              })
+            });
+          })
+          .then(res => res.json())
+          .then(response => {
+            if (response.status === 'ok') {
+              console.log('✅ Email confirmation sent to client!');
+            } else {
+              console.error('❌ Email not sent:', response.error || response.message);
+            }
+          })
+          .catch(() => {
+            alert("❌ Failed to send the message. Please try again or contact us directly.");
+          });
       });
     });
   });
 
-  // Инициализация карусели при первом открытии
   if (plansOverlay && !plansOverlay.classList.contains("hidden")) {
     initOverlayCarousel();
   }
 
-  // (Если нужно инициализировать всегда на мобильных — можно раскомментировать строку ниже)
+  // // Если нужно инициализировать всегда на мобильных — можно раскомментировать строку ниже
   // initOverlayCarousel();
 });

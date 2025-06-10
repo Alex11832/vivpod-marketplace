@@ -246,7 +246,7 @@ function getIpInfo(ip, cb) {
   if (ipCache[ip] && !ipCache[ip].error && (ipCache[ip].org || ipCache[ip].postal)) {
     return cb(ipCache[ip]);
   }
-  fetch(`https://ipinfo.io/${ip}?token=0cf3cd0e669e01`)
+  fetch(`https://ipinfo.io/${ip.split(',')[0].trim()}?token=0cf3cd0e669e01`)
     .then(r => r.json())
     .then(data => {
       if (!data.error) {
