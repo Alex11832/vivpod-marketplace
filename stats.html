@@ -23,7 +23,25 @@
 </head>
 <body>
   <h1>Пользователи и их сессии</h1>
-  <button id="geoUpdateBtn" style="margin:14px 0 6px 8px; padding:7px 16px; font-size:15px;">Обновить GEO по IP</button>
+  <section style="display: flex;">
+    
+    <div style="margin: 14px 0 12px 8px;
+    ">
+      <select id="presetRange" style="font-size:16px; padding:5px 9px;">
+        <option value="last7" selected>Последние 7 дней</option>
+        <option value="today">Сегодня</option>
+        <option value="yesterday">Вчера</option>
+        <option value="last14">Последние 14 дней</option>
+        <option value="thisMonth">Этот месяц</option>
+        <option value="lastMonth">Прошлый месяц</option>
+        <option value="all">Все время</option>
+      </select>
+    </div>
+
+    <button id="geoUpdateBtn" style="margin:14px 0 6px 8px; padding:7px 16px; font-size:15px; display: inline-block;">Обновить GEO по IP</button>
+    
+  </section>
+
   <table id="statTable"></table>
 
   <script>
@@ -42,6 +60,77 @@ function formatDate(dtStr) {
 }
 let sortBy = 'lastDate', sortDir = -1; // По умолчанию новые сверху
 
+let originalUserList = [];
+let userList = [];
+
+function getDateRange(type) {
+  const now = new Date();
+  let start, end = new Date();
+  switch (type) {
+    case 'today':
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      break;
+    case 'yesterday':
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
+      break;
+    case 'last7':
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      break;
+    case 'last14':
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      break;
+    case 'thisMonth':
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      break;
+    case 'lastMonth':
+      start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+      break;
+    default:
+      start = null; end = null;
+  }
+  return { start, end };
+}
+
+function compare(a, b, col) {
+  let av = a[col] || '', bv = b[col] || '';
+  if (col === 'sessionCount') return (av - bv) * sortDir;
+  if (col === 'startDate' || col === 'lastDate') return (new Date(av) - new Date(bv)) * sortDir;
+  return av.toString().localeCompare(bv.toString(), undefined, {numeric:true}) * sortDir;
+}
+function sortTable(col) {
+  sortBy = col; sortDir = sortBy === col ? -sortDir : -1;
+  userList.sort((a, b) => compare(a, b, sortBy));
+  renderTable();
+}
+
+// Фильтрация по периоду
+function filterUserListByRange(rangeType) {
+  const { start, end } = getDateRange(rangeType);
+  if (!start || !end || rangeType === 'all') {
+    userList = [...originalUserList];
+  } else {
+    userList = originalUserList.filter(user => {
+      const lastDate = new Date(user.lastDate);
+      return lastDate >= start && lastDate <= end;
+    });
+  }
+  userList.sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate)); // Новые сверху
+  renderTable();
+}
+
+// Применять фильтр при изменении селектора
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('presetRange').onchange = function() {
+    filterUserListByRange(this.value);
+  };
+});
+
 fetch('https://stats.artfixpro.com/stats')
   .then(res => res.json())
   .then(data => {
@@ -51,7 +140,7 @@ fetch('https://stats.artfixpro.com/stats')
       if (!users[d.userId]) users[d.userId] = [];
       users[d.userId].push(d);
     });
-    let userList = Object.entries(users).map(([id, sessions]) => {
+    let list = Object.entries(users).map(([id, sessions]) => {
       let srt = [...sessions].sort((a,b) => new Date(a.date) - new Date(b.date));
       let allPageviews = srt.filter(ev => ev.action === 'pageview');
       let startDate = allPageviews[0]?.date || srt[0]?.date || '';
@@ -78,37 +167,14 @@ fetch('https://stats.artfixpro.com/stats')
       };
     });
 
-    function compare(a, b, col) {
-      let av = a[col] || '', bv = b[col] || '';
-      if (col === 'sessionCount') return (av - bv) * sortDir;
-      if (col === 'startDate' || col === 'lastDate') return (new Date(av) - new Date(bv)) * sortDir;
-      return av.toString().localeCompare(bv.toString(), undefined, {numeric:true}) * sortDir;
-    }
-    function sortTable(col) {
-      sortBy = col; sortDir = sortBy === col ? -sortDir : -1;
-      userList.sort((a, b) => compare(a, b, sortBy));
-      renderTable();
-    }
-
-    // Сортировка по умолчанию: новые сверху!
-    userList.sort((a, b) => compare(a, b, 'lastDate'));
-
-    function updateAllGeoInfo() {
-  document.querySelectorAll('.zip-lookup, .isp-lookup').forEach(cell => {
-    const ip = cell.getAttribute('data-ip');
-    if (!ip || ip === "127.0.0.1" || ip === "::1") {
-      cell.textContent = '-';
-      return;
-    }
-    cell.textContent = 'Загрузка...';
-    getIpInfo(ip, info => {
-      if (cell.classList.contains('zip-lookup')) cell.textContent = info.postal || '-';
-      if (cell.classList.contains('isp-lookup')) cell.textContent = info.org || '-';
-    });
+    originalUserList = [...list];
+    // По умолчанию фильтр "последние 7 дней"
+    filterUserListByRange('last7');
   });
-}
 
-    function renderTable() {
+window.sortTable = sortTable;
+
+function renderTable() {
       let rows = `
         <thead>
         <tr>
@@ -180,6 +246,35 @@ fetch('https://stats.artfixpro.com/stats')
         };
       });
 
+      function renderUserEvents(events) {
+        let html = '';
+        events.forEach((ev, i) => {
+          let dt = i > 0 ? (new Date(ev.date) - new Date(events[i-1].date))/1000 : 0;
+          let timeOnPage = '';
+          if (ev.action === 'pageview') {
+            let nextEv = events.slice(i+1).find(e => e.action !== 'pageview');
+            if (nextEv) {
+              timeOnPage = `<br><span style="color:#3a6;font-size:12px;">на странице: ${(Math.round((new Date(nextEv.date) - new Date(ev.date))/1000))} сек</span>`;
+            }
+          }
+          html += `
+            <tr>
+              <td class="nowrap">
+                ${formatDate(ev.date)}
+                ${dt && i>0 ? `<br><span style="color:#888;">(+${Math.round(dt)} сек)</span>` : ''}
+                ${timeOnPage}
+              </td>
+              <td>${ACTIONS[ev.action] || ev.action || ''}</td>
+              <td>${ev.url || ''}</td>
+              <td>${ev.referrer || ''}</td>
+              <td>${ev.ip || ''}</td>
+              <td class="zip-lookup" data-ip="${ev.ip || ''}">-</td>
+              <td class="isp-lookup" data-ip="${ev.ip || ''}">-</td>
+            </tr>
+          `;
+        });
+        return html;
+      }
       // --- IP Info lookup для ZIP и ISP (geo/провайдер) ---
       setTimeout(() => {
         document.querySelectorAll('.zip-lookup, .isp-lookup').forEach(cell => {
@@ -194,46 +289,7 @@ fetch('https://stats.artfixpro.com/stats')
           });
         });
       }, 100);
-
     }
-
-    document.getElementById('geoUpdateBtn').onclick = updateAllGeoInfo;
-
-    function renderUserEvents(events) {
-  let html = '';
-  events.forEach((ev, i) => {
-    let dt = i > 0 ? (new Date(ev.date) - new Date(events[i-1].date))/1000 : 0;
-    // Время на странице только для pageview
-    let timeOnPage = '';
-    if (ev.action === 'pageview') {
-      let nextEv = events.slice(i+1).find(e => e.action !== 'pageview');
-      if (nextEv) {
-        timeOnPage = `<br><span style="color:#3a6;font-size:12px;">на странице: ${(Math.round((new Date(nextEv.date) - new Date(ev.date))/1000))} сек</span>`;
-      }
-    }
-    html += `
-      <tr>
-        <td class="nowrap">
-          ${formatDate(ev.date)}
-          ${dt && i>0 ? `<br><span style="color:#888;">(+${Math.round(dt)} сек)</span>` : ''}
-          ${timeOnPage}
-        </td>
-        <td>${ACTIONS[ev.action] || ev.action || ''}</td>
-        <td>${ev.url || ''}</td>
-        <td>${ev.referrer || ''}</td>
-        <td>${ev.ip || ''}</td>
-        <td class="zip-lookup" data-ip="${ev.ip || ''}">-</td>
-        <td class="isp-lookup" data-ip="${ev.ip || ''}">-</td>
-      </tr>
-    `;
-  });
-  return html;
-}
-
-
-    window.sortTable = sortTable;
-    renderTable();
-  });
 
 // --- Кэширование и lookup IP (localStorage + сессия) ---
 const ipCache = JSON.parse(localStorage.getItem('ipinfoCache') || '{}');
@@ -258,7 +314,20 @@ function getIpInfo(ip, cb) {
     .catch(() => cb({}));
 }
 
-</script>
-
+document.getElementById('geoUpdateBtn').onclick = function() {
+  document.querySelectorAll('.zip-lookup, .isp-lookup').forEach(cell => {
+    const ip = cell.getAttribute('data-ip');
+    if (!ip || ip === "127.0.0.1" || ip === "::1") {
+      cell.textContent = '-';
+      return;
+    }
+    cell.textContent = 'Загрузка...';
+    getIpInfo(ip, info => {
+      if (cell.classList.contains('zip-lookup')) cell.textContent = info.postal || '-';
+      if (cell.classList.contains('isp-lookup')) cell.textContent = info.org || '-';
+    });
+  });
+};
+  </script>
 </body>
 </html>
