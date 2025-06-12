@@ -1526,9 +1526,6 @@ body.modal-open {
   top: 0
 }
 
-.nav_mobile_contacts_row {
-  display: none; /* по умолчанию скрыт */
-}
 /* DESKTOP ONLY — вне @media */
 .tooltip-text.copy-tooltip {
   visibility: hidden;
@@ -1599,25 +1596,10 @@ body.modal-open {
 }
 
 
-@media (max-width: 700px) {
-  .nav_right .nav_contact_links, .nav_mobile_contacts { display: none; }
-  .nav_mobile_contacts_row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    background: #fff;
-    width: 100%;
-    padding: 6px 4px 5px 4px;
-    border-bottom: 1px solid #eee;
-    font-size: 13px;
-    color: #222;
-    font-weight: 500;
-    position: relative;
-    user-select: none;
-    border-radius: 8px;
-    z-index: 2;
-  }
+@media (max-width: 768px) {
+  .nav_right .nav_contact_links, .nav_mobile_contacts
+   { display: none; }
+
   .nav_mobile_contacts_row .divider {
     color: #bbb;
     margin: 0 7px;

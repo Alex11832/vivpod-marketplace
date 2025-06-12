@@ -56,8 +56,10 @@ function sendEvent(eventType, extra = {}) {
   navigator.sendBeacon('https://stats.artfixpro.com/collect', JSON.stringify(event));
 }
 window.addEventListener('load', () => sendEvent('pageview'));
-window.addEventListener('beforeunload', () => sendEvent('unload'));
-// window.addEventListener('click', () => { clickCount++; sendEvent('click'); });
+window.addEventListener('beforeunload', () => {
+  const duration = Math.round((Date.now() - startTime) / 1000); // в секундах
+  sendEvent('unload', { timeOnSiteSec: duration });
+});
 
 // Пример: отслеживание открытия модального окна
 window.openModal = function(modalName) {

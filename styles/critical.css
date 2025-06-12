@@ -32,7 +32,7 @@ img {
 }
 
 img[src$=".svg"] {
-  width: 100px;
+  /* width: 100px; */
   height: auto;
   display: inline-block;
   object-fit: contain;
@@ -129,6 +129,10 @@ p {
 .nav_right {
   display: flex;
   align-items: center;
+}
+
+.nav_mobile_contacts_row {
+  display: none; /* по умолчанию скрыт */
 }
 
 .nav_menu_item {
@@ -493,6 +497,29 @@ footer {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+
+  .site-header {
+    display: none !important;
+  }
+
+  .nav_mobile_contacts_row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: #fff;
+    width: 100%;
+    padding: 6px 4px 5px 4px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    color: #222;
+    font-weight: 500;
+    position: relative;
+    user-select: none;
+    border-radius: 8px;
+    z-index: 2;
+  }
+
 }
 @media (min-width: 769px) and (max-width: 1024px) {
   .seo-articles-grid {
@@ -541,11 +568,4 @@ footer {
 }
 .service-select-btn:hover {
   background-color: #1e7e34;
-}
-
-/* Responsive Styles for critical elements */
-@media (max-width: 768px) {
-  .site-header {
-    display: none !important;
-  }
 }
