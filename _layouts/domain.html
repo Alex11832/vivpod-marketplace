@@ -1,0 +1,417 @@
+---
+layout: default
+---
+
+<div class="domain-page">
+    <div class="container">
+        <div class="domain-header">
+            <h1 class="domain-title">{{ page.name }}</h1>
+            <p class="domain-tagline">This domain is for sale</p>
+        </div>
+        
+        <div class="domain-content">
+            <div class="domain-main">
+                <div class="domain-info-card">
+                    <h2>About This Domain</h2>
+                    <p class="domain-full-description">{{ page.description }}</p>
+                    
+                    <div class="domain-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Domain Length</span>
+                            <span class="stat-value">{{ page.name | size }} characters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Category</span>
+                            <span class="stat-value">{{ page.category }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Extension</span>
+                            <span class="stat-value">{{ page.name | split: '.' | last | upcase }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="domain-features">
+                    <h3>Why Choose Us?</h3>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div class="feature-text">
+                                <h4>30-Day Money Back Guarantee</h4>
+                                <p>100% satisfaction guarantee on every domain purchase</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🚀</div>
+                            <div class="feature-text">
+                                <h4>Quick Domain Transfer</h4>
+                                <p>Fast and secure domain ownership transfer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔒</div>
+                            <div class="feature-text">
+                                <h4>Safe & Secure Shopping</h4>
+                                <p>Protected transactions via Escrow.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="make-offer-section">
+                    <h3>Make an Offer</h3>
+                    <p>Not ready to buy at full price? Submit your best offer and we'll get back to you.</p>
+                    
+                    <form id="offer-form" class="offer-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="offer-name">Your Name *</label>
+                                <input type="text" id="offer-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="offer-email">Email Address *</label>
+                                <input type="email" id="offer-email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="offer-phone">Phone Number</label>
+                                <input type="tel" id="offer-phone" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="offer-amount">Offer Amount ($) *</label>
+                                <input type="number" id="offer-amount" name="amount" min="100" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="offer-message">Additional Message</label>
+                            <textarea id="offer-message" name="message" rows="4"></textarea>
+                        </div>
+                        
+                        <input type="hidden" name="domain" value="{{ page.name }}">
+                        
+                        <button type="submit" class="btn btn-primary btn-large">Submit Offer</button>
+                    </form>
+                    
+                    <div id="offer-success" class="alert alert-success" style="display: none;">
+                        Thank you! Your offer has been submitted. We'll contact you soon.
+                    </div>
+                    <div id="offer-error" class="alert alert-error" style="display: none;">
+                        Sorry, there was an error submitting your offer. Please try again or contact us directly.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="domain-sidebar">
+                <div class="price-card">
+                    <div class="price-header">
+                        <h3>{{ page.name }}</h3>
+                    </div>
+                    
+                    <div class="price-amount">
+                        <span class="price-label">Buy now:</span>
+                        <span class="price-value">${{ page.price | number_with_delimiter: ',' }}</span>
+                    </div>
+                    
+                    <div class="price-actions">
+                        <button onclick="buyNow('{{ page.name }}', {{ page.price }})" class="btn btn-primary btn-block btn-large">
+                            ▸ Buy Now
+                        </button>
+                        
+                        <div class="divider-text">or</div>
+                        
+                        <a href="#make-offer-section" class="btn btn-secondary btn-block">
+                            Make an Offer
+                        </a>
+                    </div>
+                    
+                    <div class="price-features">
+                        <ul>
+                            <li>✓ 30-day money-back guarantee</li>
+                            <li>✓ Immediate ownership transfer</li>
+                            <li>✓ Safe and secure via Escrow.com</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <p><strong>Questions?</strong></p>
+                        <p>Contact us: <a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.domain-page {
+    padding: 40px 0 80px;
+}
+
+.domain-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.domain-title {
+    font-size: 48px;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.domain-tagline {
+    font-size: 24px;
+    color: #666;
+}
+
+.domain-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+}
+
+.domain-main {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.domain-info-card,
+.domain-features,
+.make-offer-section {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.domain-info-card h2,
+.domain-features h3,
+.make-offer-section h3 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.domain-full-description {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.domain-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.features-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feature-item {
+    display: flex;
+    gap: 15px;
+    align-items: start;
+}
+
+.feature-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.feature-text h4 {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.feature-text p {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Form Styles */
+.offer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Sidebar */
+.price-card {
+    background: var(--white);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 30px;
+    position: sticky;
+    top: 100px;
+}
+
+.price-header h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.price-amount {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
+
+.price-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.price-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.price-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-block {
+    width: 100%;
+    text-align: center;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+.divider-text {
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+.price-features {
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.price-features ul {
+    list-style: none;
+}
+
+.price-features li {
+    padding: 8px 0;
+    color: #555;
+}
+
+.contact-info {
+    text-align: center;
+}
+
+.contact-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+@media (max-width: 968px) {
+    .domain-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .domain-sidebar {
+        order: -1;
+    }
+    
+    .price-card {
+        position: static;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .domain-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

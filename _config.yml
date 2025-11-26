@@ -1,0 +1,43 @@
+# Site settings
+title: VivPod Domains
+email: contact@vivpod.com
+description: >-
+  Premium domain marketplace - Find the perfect domain name for your business.
+  Over 100+ premium domains available for purchase.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://vivpod.com" # the base hostname & protocol for your site
+github_username: Alex11832
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Collections
+collections:
+  domains:
+    output: true
+    permalink: /domain/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "domains"
+    values:
+      layout: "domain"
+
+# Exclude from processing
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md

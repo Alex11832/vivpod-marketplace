@@ -1,0 +1,75 @@
+---
+layout: default
+title: Premium Domain Marketplace
+---
+
+<section class="hero">
+    <div class="container">
+        <h1 class="hero-title">Find the domain that's right for you</h1>
+        
+        <div class="hero-search">
+            <input type="text" id="domain-search" placeholder="Search for your perfect domain..." />
+            <button id="search-btn">Search</button>
+        </div>
+        
+        <div class="hero-features">
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <h3>Secure Payment</h3>
+                <p>Safe transactions via Escrow.com</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <h3>30-Day Guarantee</h3>
+                <p>Money-back guarantee</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <h3>Quick Transfer</h3>
+                <p>Fast domain ownership transfer</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Safe & Secure</h3>
+                <p>Protected shopping experience</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="domains-section">
+    <div class="container">
+        <h2 class="section-title">Premium Domains Available</h2>
+        <p class="section-subtitle">Over {{ site.data.domains.size }}+ premium domains available — get yours today!</p>
+        
+        <div id="domains-grid" class="domains-grid">
+            {% for domain in site.data.domains %}
+            <div class="domain-card" data-name="{{ domain.name }}" data-category="{{ domain.category }}">
+                <div class="domain-card-header">
+                    <h3 class="domain-name">{{ domain.name }}</h3>
+                    {% if domain.featured %}
+                    <span class="badge-featured">Featured</span>
+                    {% endif %}
+                </div>
+                <p class="domain-description">{{ domain.description }}</p>
+                <div class="domain-card-footer">
+                    <div class="domain-price">${{ domain.price | number_with_delimiter: ',' }}</div>
+                    <a href="/domain/{{ domain.name | remove: '.com' | remove: '.io' | remove: '.net' }}/" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div id="no-results" class="no-results" style="display: none;">
+            <p>No domains found matching your search. Try different keywords.</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Ready to secure your perfect domain?</h2>
+        <p>Browse our collection or contact us for personalized assistance</p>
+        <a href="{{ '/contact' | relative_url }}" class="btn btn-secondary">Contact Us</a>
+    </div>
+</section>

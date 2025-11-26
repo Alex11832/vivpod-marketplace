@@ -1,0 +1,35 @@
+- name: techvault.com
+  price: 12395
+  description: Perfect for technology companies, security solutions, or tech storage services
+  category: Technology
+  featured: true
+
+- name: greenshift.io
+  price: 8695
+  description: Ideal for environmental startups, sustainability platforms, or green tech companies
+  category: Environment
+  featured: true
+
+- name: cloudnexus.net
+  price: 15995
+  description: Great for cloud computing services, networking solutions, or SaaS platforms
+  category: Technology
+  featured: false
+
+- name: healthpulse.com
+  price: 11995
+  description: Perfect for healthcare apps, fitness tracking, or medical technology
+  category: Health
+  featured: true
+
+- name: financeflow.io
+  price: 9595
+  description: Ideal for fintech startups, financial planning tools, or investment platforms
+  category: Finance
+  featured: false
+
+- name: edumaster.com
+  price: 13695
+  description: Great for educational platforms, online courses, or learning management systems
+  category: Education
+  featured: true
