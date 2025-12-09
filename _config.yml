@@ -7,6 +7,7 @@ description: >-
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://vivpod.com" # the base hostname & protocol for your site
 github_username: Alex11832
+assets_version: "1.0.0"
 
 # Build settings
 theme: minima

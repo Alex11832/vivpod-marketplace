@@ -1,35 +1,113 @@
-- name: techvault.com
-  price: 12395
-  description: Perfect for technology companies, security solutions, or tech storage services
-  category: Technology
-  featured: true
-
-- name: greenshift.io
-  price: 8695
-  description: Ideal for environmental startups, sustainability platforms, or green tech companies
-  category: Environment
-  featured: true
-
-- name: cloudnexus.net
-  price: 15995
-  description: Great for cloud computing services, networking solutions, or SaaS platforms
-  category: Technology
+- name: artfix.pro
+  price: 400
+  description: Brandable pick for art restoration, creative studios, or premium retouching services
+  category: "Art & Design"
   featured: false
 
-- name: healthpulse.com
-  price: 11995
-  description: Perfect for healthcare apps, fitness tracking, or medical technology
+- name: healget.com
+  price: 15000
+  description: Strong healthcare name for telemedicine, wellness marketplaces, or insurance tech
   category: Health
   featured: true
 
-- name: financeflow.io
-  price: 9595
-  description: Ideal for fintech startups, financial planning tools, or investment platforms
-  category: Finance
+- name: cheflyo.com
+  price: 1800
+  description: Catchy culinary brand for chef booking platforms, meal kits, or cooking apps
+  category: Food & Beverage
   featured: false
 
-- name: edumaster.com
-  price: 13695
-  description: Great for educational platforms, online courses, or learning management systems
-  category: Education
+- name: vivpod.com
+  price: 4000
+  description: Ideal for podcast networks, audio platforms, or voice technology brands
+  category: Media
+  featured: true
+
+- name: eatlyt.com
+  price: 3000
+  description: Short, memorable choice for food delivery, recipe hubs, or nutrition startups
+  category: Food & Beverage
+  featured: false
+
+- name: iidio.com
+  price: 2200
+  description: Versatile five-letter brand suited for AI tools, video products, or modern SaaS
+  category: Technology
+  featured: false
+
+- name: meallyo.com
+  price: 3000
+  description: Friendly name for meal planning apps, catering services, or food content brands
+  category: Food & Beverage
+  featured: false
+
+- name: tastvia.com
+  price: 2000
+  description: Refined brand for taste discovery, gourmet reviews, or culinary travel guides
+  category: Food & Beverage
+  featured: false
+
+- name: fudful.com
+  price: 1300
+  description: Playful pick for snack boxes, food blogs, or digital food brands
+  category: Food & Beverage
+  featured: false
+
+- name: aabbo.com
+  price: 2300
+  description: Ultra-short, flexible brand for apps, fintech tools, or modern marketplaces
+  category: Brandable
+  featured: false
+
+- name: fudzen.com
+  price: 4500
+  description: Calm, memorable name for healthy meal prep, mindful eating, or wellness food brands
+  category: Food & Beverage
+  featured: false
+
+- name: tastget.com
+  price: 8000
+  description: Action-driven domain for food marketplaces, delivery platforms, or deal aggregators
+  category: Food & Beverage
+  featured: false
+
+- name: cooklyt.com
+  price: 1500
+  description: Modern cooking brand for smart kitchen tools, recipe apps, or culinary content
+  category: Food & Beverage
+  featured: false
+
+- name: tastnet.com
+  price: 700
+  description: Network-ready name for food review sites, culinary communities, or recipe exchanges
+  category: Food & Beverage
+  featured: false
+
+- name: luncz.com
+  price: 1400
+  description: Snappy five-letter domain for lunch delivery, office catering, or cafe finders
+  category: Food & Beverage
+  featured: false
+
+- name: juciz.com
+  price: 2500
+  description: Vibrant choice for juice brands, smoothie shops, or healthy beverage startups
+  category: Food & Beverage
+  featured: false
+
+- name: mobilecarrepairnyc.com
+  price: 10000
+  description: Exact-match domain for NYC mobile mechanics and on-site auto repair services
+  category: Automotive
+  featured: true
+
+- name: autofixnyc.com
+  price: 7000
+  description: Strong local brand for New York auto repair shops or mobile car service crews
+  category: Automotive
+  featured: true
+
+- name: oniito.com
+  price: 15000
+  description: Premium five-letter brand for cutting-edge tech products, consumer apps, or AI tools
+  category: Technology
   featured: true

@@ -14,7 +14,7 @@ title: Premium Domain Marketplace
         
         <div class="hero-features">
             <div class="feature">
-                <div class="feature-icon">💰</div>
+                <div class="feature-icon">🔒</div>
                 <h3>Secure Payment</h3>
                 <p>Safe transactions via Escrow.com</p>
             </div>
@@ -29,7 +29,7 @@ title: Premium Domain Marketplace
                 <p>Fast domain ownership transfer</p>
             </div>
             <div class="feature">
-                <div class="feature-icon">🔒</div>
+                <div class="feature-icon">🛡</div>
                 <h3>Safe & Secure</h3>
                 <p>Protected shopping experience</p>
             </div>
@@ -40,11 +40,11 @@ title: Premium Domain Marketplace
 <section class="domains-section">
     <div class="container">
         <h2 class="section-title">Premium Domains Available</h2>
-        <p class="section-subtitle">Over {{ site.data.domains.size }}+ premium domains available — get yours today!</p>
+        <p class="section-subtitle">Over {{ site.data.domains.size }}+ premium domains available - get yours today!</p>
         
         <div id="domains-grid" class="domains-grid">
             {% for domain in site.data.domains %}
-            <div class="domain-card" data-name="{{ domain.name }}" data-category="{{ domain.category }}">
+            <a class="domain-card" href="/domain/{{ domain.name | split: '.' | first }}/" data-name="{{ domain.name }}" data-category="{{ domain.category }}">
                 <div class="domain-card-header">
                     <h3 class="domain-name">{{ domain.name }}</h3>
                     {% if domain.featured %}
@@ -54,9 +54,9 @@ title: Premium Domain Marketplace
                 <p class="domain-description">{{ domain.description }}</p>
                 <div class="domain-card-footer">
                     <div class="domain-price">${{ domain.price | number_with_delimiter: ',' }}</div>
-                    <a href="/domain/{{ domain.name | remove: '.com' | remove: '.io' | remove: '.net' }}/" class="btn btn-primary">View Details</a>
+                    <span class="btn btn-primary">View Details</span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         
