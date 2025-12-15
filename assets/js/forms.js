@@ -1,115 +1,152 @@
-// Forms and Payment Integration
+// Forms, offers, and Telegram delivery
 (function() {
     'use strict';
     
+    const TELEGRAM_BOT_TOKEN = '7370481681:AAFoB90F1W-I3Yo5yCOlaFe9li0IzBMVt7o';
+    const TELEGRAM_CHAT_ID = '443139059';
+    const TELEGRAM_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const DEFAULT_MISSING_VALUE = 'Not provided';
+    
     // Buy Now function - Redirect to Escrow.com
     window.buyNow = function(domainName, price) {
-        // Escrow.com integration
-        // Format: https://www.escrow.com/buy/domain/{domain-name}
         const escrowUrl = `https://www.escrow.com/buy/domain/${domainName}`;
-        
-        // Optional: You can also use Escrow API to create a transaction
-        // For now, we'll redirect to Escrow.com with the domain
         
         if (confirm(`You are about to purchase ${domainName} for $${price.toLocaleString()} via Escrow.com. Continue?`)) {
             window.open(escrowUrl, '_blank');
         }
     };
     
-    // Make Offer Form Handler
-    document.addEventListener('DOMContentLoaded', function() {
-        const offerForm = document.getElementById('offer-form');
+    function buildTelegramMessage(title, fields) {
+        const pageUrl = window.location.href;
+        const lines = [
+            title,
+            `Page: ${pageUrl}`
+        ];
         
-        if (offerForm) {
-            offerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(offerForm);
-                const data = {
-                    domain: formData.get('domain'),
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    amount: formData.get('amount'),
-                    message: formData.get('message')
-                };
-                
-                // Hide previous messages
-                document.getElementById('offer-success').style.display = 'none';
-                document.getElementById('offer-error').style.display = 'none';
-                
-                // Submit to backend
-                submitOffer(data);
-            });
-        }
-    });
+        Object.entries(fields).forEach(([label, value]) => {
+            lines.push(`${label}: ${value || DEFAULT_MISSING_VALUE}`);
+        });
+        
+        return lines.join('\n');
+    }
     
-    // Submit offer to backend
-    function submitOffer(data) {
-        // Option 1: Use Formspree (free form backend)
-        const formspreeEndpoint = 'https://formspree.io/f/YOUR_FORM_ID'; // Replace with your Formspree ID
+    async function sendToTelegram(title, fields) {
+        const text = buildTelegramMessage(title, fields);
         
-        // Option 2: Use your own backend
-        // const backendEndpoint = 'https://your-backend.com/api/offers';
-        
-        // For demo purposes, we'll simulate a successful submission
-        // In production, replace this with actual API call
-        
-        // Simulated API call
-        setTimeout(function() {
-            // Success
-            document.getElementById('offer-success').style.display = 'block';
-            document.getElementById('offer-form').reset();
-            
-            // Scroll to success message
-            document.getElementById('offer-success').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            
-            // Log offer data (in production, this would be sent to your backend)
-            console.log('Offer submitted:', data);
-            
-            // Optional: Send to email via mailto as fallback
-            // This creates a pre-filled email that user can send
-            const emailSubject = `Domain Offer: ${data.domain}`;
-            const emailBody = `
-Name: ${data.name}
-Email: ${data.email}
-Phone: ${data.phone || 'Not provided'}
-Offer Amount: $${data.amount}
-Message: ${data.message || 'No additional message'}
-Domain: ${data.domain}
-            `.trim();
-            
-            // Uncomment to enable mailto fallback
-            // window.location.href = `mailto:contact@vivpod.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-            
-        }, 1000);
-        
-        /* 
-        // Real implementation with Formspree:
-        fetch(formspreeEndpoint, {
+        const response = await fetch(TELEGRAM_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                document.getElementById('offer-success').style.display = 'block';
-                document.getElementById('offer-form').reset();
-            } else {
-                throw new Error('Submission failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('offer-error').style.display = 'block';
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text
+            })
         });
-        */
+        
+        if (!response.ok) {
+            const errorDetails = await response.json().catch(() => ({}));
+            const message = errorDetails.description || 'Telegram request failed';
+            throw new Error(message);
+        }
+        
+        return response.json();
     }
+    
+    function setButtonLoading(form, isLoading) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (!submitButton) return;
+        
+        if (!submitButton.dataset.originalText) {
+            submitButton.dataset.originalText = submitButton.textContent;
+        }
+        
+        submitButton.disabled = isLoading;
+        submitButton.textContent = isLoading ? 'Sending...' : submitButton.dataset.originalText;
+    }
+    
+    function resetStatusMessages(successEl, errorEl) {
+        if (successEl) successEl.style.display = 'none';
+        if (errorEl) errorEl.style.display = 'none';
+    }
+    
+    function showStatusMessage(el) {
+        if (el) {
+            el.style.display = 'block';
+            el.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Offer form (domain pages)
+        const offerForm = document.getElementById('offer-form');
+        if (offerForm) {
+            const offerSuccess = document.getElementById('offer-success');
+            const offerError = document.getElementById('offer-error');
+            
+            offerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                resetStatusMessages(offerSuccess, offerError);
+                setButtonLoading(offerForm, true);
+                
+                const formData = new FormData(offerForm);
+                const fields = {
+                    'Domain': formData.get('domain'),
+                    'Name': formData.get('name'),
+                    'Email': formData.get('email'),
+                    'Phone': formData.get('phone'),
+                    'Offer Amount ($)': formData.get('amount'),
+                    'Message': formData.get('message')
+                };
+                
+                try {
+                    await sendToTelegram('New domain offer', fields);
+                    offerForm.reset();
+                    showStatusMessage(offerSuccess);
+                } catch (error) {
+                    console.error('Offer submission failed:', error);
+                    showStatusMessage(offerError);
+                } finally {
+                    setButtonLoading(offerForm, false);
+                }
+            });
+        }
+        
+        // Contact form
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            const contactSuccess = document.getElementById('contact-success');
+            const contactError = document.getElementById('contact-error');
+            
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                resetStatusMessages(contactSuccess, contactError);
+                setButtonLoading(contactForm, true);
+                
+                const formData = new FormData(contactForm);
+                const fields = {
+                    'Name': formData.get('name'),
+                    'Email': formData.get('email'),
+                    'Domain': formData.get('domain'),
+                    'Message': formData.get('message')
+                };
+                
+                try {
+                    await sendToTelegram('New contact message', fields);
+                    contactForm.reset();
+                    showStatusMessage(contactSuccess);
+                } catch (error) {
+                    console.error('Contact submission failed:', error);
+                    showStatusMessage(contactError);
+                } finally {
+                    setButtonLoading(contactForm, false);
+                }
+            });
+        }
+    });
     
     // Smooth scroll to offer section
     document.addEventListener('DOMContentLoaded', function() {

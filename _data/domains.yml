@@ -53,7 +53,7 @@
   featured: false
 
 - name: aabbo.com
-  price: 2300
+  price: 3399
   description: Ultra-short, flexible brand for apps, fintech tools, or modern marketplaces
   category: Brandable
   featured: false
@@ -77,7 +77,7 @@
   featured: false
 
 - name: tastnet.com
-  price: 700
+  price: 1300
   description: Network-ready name for food review sites, culinary communities, or recipe exchanges
   category: Food & Beverage
   featured: false
@@ -95,7 +95,7 @@
   featured: false
 
 - name: mobilecarrepairnyc.com
-  price: 10000
+  price: 5000
   description: Exact-match domain for NYC mobile mechanics and on-site auto repair services
   category: Automotive
   featured: true
