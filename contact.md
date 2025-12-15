@@ -56,10 +56,10 @@ permalink: /contact/
                     </div>
                     <button type="submit" class="btn btn-primary btn-large">Send Message</button>
                 </form>
-                <div id="contact-success" class="alert alert-success" style="display: none;">
+                <div id="contact-success" class="alert alert-success is-hidden">
                     Thank you for your message! We'll get back to you soon.
                 </div>
-                <div id="contact-error" class="alert alert-error" style="display: none;">
+                <div id="contact-error" class="alert alert-error is-hidden">
                     Sorry, there was an error sending your message. Please try emailing us directly.
                 </div>
             </div>

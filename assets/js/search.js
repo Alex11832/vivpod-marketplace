@@ -2,6 +2,8 @@
 (function() {
     'use strict';
     
+    const HIDDEN_CLASS = 'is-hidden';
+    
     // Search function
     function searchDomains(query) {
         const searchTerm = query.toLowerCase().trim();
@@ -12,9 +14,9 @@
         if (!searchTerm) {
             // Show all domains if search is empty
             domainCards.forEach(card => {
-                card.style.display = 'block';
+                card.classList.remove(HIDDEN_CLASS);
             });
-            if (noResults) noResults.style.display = 'none';
+            if (noResults) noResults.classList.add(HIDDEN_CLASS);
             return;
         }
         
@@ -27,16 +29,20 @@
             if (domainName.includes(searchTerm) || 
                 category.includes(searchTerm) || 
                 description.includes(searchTerm)) {
-                card.style.display = 'block';
+                card.classList.remove(HIDDEN_CLASS);
                 visibleCount++;
             } else {
-                card.style.display = 'none';
+                card.classList.add(HIDDEN_CLASS);
             }
         });
         
         // Show/hide no results message
         if (noResults) {
-            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            if (visibleCount === 0) {
+                noResults.classList.remove(HIDDEN_CLASS);
+            } else {
+                noResults.classList.add(HIDDEN_CLASS);
+            }
         }
     }
     

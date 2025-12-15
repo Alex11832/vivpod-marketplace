@@ -6,6 +6,7 @@
     const TELEGRAM_CHAT_ID = '443139059';
     const TELEGRAM_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     const DEFAULT_MISSING_VALUE = 'Not provided';
+    const HIDDEN_CLASS = 'is-hidden';
     
     const checkoutState = {
         modal: null,
@@ -118,13 +119,16 @@
     }
     
     function resetStatusMessages(successEl, errorEl) {
-        if (successEl) successEl.style.display = 'none';
-        if (errorEl) errorEl.style.display = 'none';
+        [successEl, errorEl].forEach(function(el) {
+            if (el) {
+                el.classList.add(HIDDEN_CLASS);
+            }
+        });
     }
     
     function showStatusMessage(el) {
         if (el) {
-            el.style.display = 'block';
+            el.classList.remove(HIDDEN_CLASS);
             el.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
@@ -158,6 +162,17 @@
                 }
             });
         }
+        
+        const checkoutTriggers = document.querySelectorAll('.checkout-trigger');
+        checkoutTriggers.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const domainName = button.dataset.domain;
+                const priceRaw = Number(button.dataset.price);
+                const priceValue = Number.isFinite(priceRaw) ? priceRaw : button.dataset.price;
+                openCheckoutModal(domainName, priceValue);
+            });
+        });
         
         if (checkoutState.form) {
             updateCheckoutValues(
