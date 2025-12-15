@@ -7,13 +7,65 @@
     const TELEGRAM_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     const DEFAULT_MISSING_VALUE = 'Not provided';
     
-    // Buy Now function - Redirect to Escrow.com
-    window.buyNow = function(domainName, price) {
-        const escrowUrl = `https://www.escrow.com/buy/domain/${domainName}`;
-        
-        if (confirm(`You are about to purchase ${domainName} for $${price.toLocaleString()} via Escrow.com. Continue?`)) {
-            window.open(escrowUrl, '_blank');
+    const checkoutState = {
+        modal: null,
+        form: null,
+        success: null,
+        error: null,
+        domainDisplay: null,
+        priceDisplay: null,
+        hiddenDomain: null,
+        hiddenPrice: null,
+        currentDomain: null,
+        currentPrice: null
+    };
+    
+    function formatPrice(value) {
+        const numeric = Number(value);
+        if (Number.isFinite(numeric)) {
+            return `$${numeric.toLocaleString()}`;
         }
+        return value || DEFAULT_MISSING_VALUE;
+    }
+    
+    function updateCheckoutValues(domainName, price) {
+        checkoutState.currentDomain = domainName;
+        checkoutState.currentPrice = price;
+        const priceText = formatPrice(price);
+        
+        if (checkoutState.domainDisplay) checkoutState.domainDisplay.textContent = domainName || DEFAULT_MISSING_VALUE;
+        if (checkoutState.priceDisplay) checkoutState.priceDisplay.textContent = priceText;
+        if (checkoutState.hiddenDomain) checkoutState.hiddenDomain.value = domainName || '';
+        if (checkoutState.hiddenPrice) checkoutState.hiddenPrice.value = price || '';
+    }
+    
+    function toggleCheckoutModal(isOpen) {
+        if (!checkoutState.modal) return;
+        
+        checkoutState.modal.classList.toggle('is-active', isOpen);
+        checkoutState.modal.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        document.body.classList.toggle('modal-open', isOpen);
+    }
+    
+    function openCheckoutModal(domainName, price) {
+        if (!checkoutState.form) return;
+        
+        resetStatusMessages(checkoutState.success, checkoutState.error);
+        checkoutState.form.reset();
+        updateCheckoutValues(domainName, price);
+        toggleCheckoutModal(true);
+        
+        const emailInput = checkoutState.form.querySelector('#checkout-email');
+        if (emailInput) emailInput.focus();
+    }
+    
+    function closeCheckoutModal() {
+        toggleCheckoutModal(false);
+    }
+    
+    // Buy Now: open secure checkout form
+    window.buyNow = function(domainName, price) {
+        openCheckoutModal(domainName, price);
     };
     
     function buildTelegramMessage(title, fields) {
@@ -81,6 +133,75 @@
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+        // Secure checkout form
+        checkoutState.modal = document.getElementById('checkout-modal');
+        checkoutState.form = document.getElementById('checkout-form');
+        checkoutState.success = document.getElementById('checkout-success');
+        checkoutState.error = document.getElementById('checkout-error');
+        checkoutState.domainDisplay = document.getElementById('checkout-domain');
+        checkoutState.priceDisplay = document.getElementById('checkout-price');
+        
+        if (checkoutState.form) {
+            checkoutState.hiddenDomain = checkoutState.form.querySelector('input[name="domain"]');
+            checkoutState.hiddenPrice = checkoutState.form.querySelector('input[name="price"]');
+        }
+        
+        if (checkoutState.modal) {
+            const closeTriggers = checkoutState.modal.querySelectorAll('[data-close="checkout"]');
+            closeTriggers.forEach(el => {
+                el.addEventListener('click', closeCheckoutModal);
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && checkoutState.modal.classList.contains('is-active')) {
+                    closeCheckoutModal();
+                }
+            });
+        }
+        
+        if (checkoutState.form) {
+            updateCheckoutValues(
+                checkoutState.hiddenDomain ? checkoutState.hiddenDomain.value : DEFAULT_MISSING_VALUE,
+                checkoutState.hiddenPrice ? checkoutState.hiddenPrice.value : DEFAULT_MISSING_VALUE
+            );
+            
+            checkoutState.form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                resetStatusMessages(checkoutState.success, checkoutState.error);
+                
+                if (!checkoutState.form.reportValidity()) {
+                    return;
+                }
+                
+                setButtonLoading(checkoutState.form, true);
+                
+                const formData = new FormData(checkoutState.form);
+                const domainName = formData.get('domain');
+                const priceValue = formData.get('price');
+                
+                const fields = {
+                    'Domain': domainName,
+                    'Price': formatPrice(priceValue),
+                    'Email': formData.get('email'),
+                    'Full name': formData.get('full_name'),
+                    'Phone': formData.get('phone'),
+                    'Escrow confirmation': formData.get('escrow_confirm') ? 'Confirmed' : 'Not confirmed'
+                };
+                
+                try {
+                    await sendToTelegram('New secure checkout request', fields);
+                    checkoutState.form.reset();
+                    updateCheckoutValues(domainName, priceValue);
+                    showStatusMessage(checkoutState.success);
+                } catch (error) {
+                    console.error('Checkout submission failed:', error);
+                    showStatusMessage(checkoutState.error);
+                } finally {
+                    setButtonLoading(checkoutState.form, false);
+                }
+            });
+        }
+        
         // Offer form (domain pages)
         const offerForm = document.getElementById('offer-form');
         if (offerForm) {

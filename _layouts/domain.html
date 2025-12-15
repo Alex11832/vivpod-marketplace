@@ -117,7 +117,7 @@ layout: default
                     
                     <div class="price-actions">
                         <button onclick="buyNow('{{ page.name }}', {{ page.price }})" class="btn btn-primary btn-block btn-large">
-                            Buy Now
+                            Request secure checkout link
                         </button>
                         
                         <div class="divider-text">or</div>
@@ -142,6 +142,68 @@ layout: default
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="checkout-modal" class="checkout-modal" aria-hidden="true">
+    <div class="checkout-modal__backdrop" data-close="checkout"></div>
+    <div class="checkout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+        <button type="button" class="checkout-modal__close" aria-label="Close checkout form" data-close="checkout">&times;</button>
+        
+        <div class="checkout-modal__header">
+            <p class="eyebrow">Secure via Escrow.com</p>
+            <h3 id="checkout-modal-title">Request your secure checkout link</h3>
+            <p class="subhead">We'll create an Escrow.com transaction and email you a safe payment link.</p>
+            
+            <div class="checkout-summary">
+                <div class="summary-item">
+                    <span class="label">Domain</span>
+                    <span class="value" id="checkout-domain">{{ page.name }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Price</span>
+                    <span class="value" id="checkout-price">${{ page.price | number_with_delimiter: ',' }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <form id="checkout-form" class="checkout-form">
+            <div class="form-group">
+                <label for="checkout-email">Email *</label>
+                <input type="email" id="checkout-email" name="email" placeholder="name@company.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="checkout-name">Full name *</label>
+                <input type="text" id="checkout-name" name="full_name" placeholder="John Smith" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="checkout-phone">Phone number (optional)</label>
+                <input type="tel" id="checkout-phone" name="phone" placeholder="+1 212 555 1234">
+                <p class="field-hint">Only for urgent questions, not for transfer instructions.</p>
+            </div>
+            
+            <input type="hidden" name="domain" value="{{ page.name }}">
+            <input type="hidden" name="price" value="{{ page.price }}">
+            
+            <div class="form-actions">
+                <label class="checkbox-row">
+                    <input type="checkbox" id="escrow-confirm" name="escrow_confirm" required>
+                    <span>I understand the transaction will be completed via Escrow.com.</span>
+                </label>
+                
+                <button type="submit" class="btn btn-primary btn-large">Request secure checkout link</button>
+                <p class="form-note"><strong>Important:</strong> Domain transfer details will be confirmed inside Escrow.com only after payment is secured.</p>
+            </div>
+            
+            <div id="checkout-success" class="alert alert-success" style="display: none;">
+                Thank you. We'll email you a secure Escrow.com checkout link shortly.
+            </div>
+            <div id="checkout-error" class="alert alert-error" style="display: none;">
+                Sorry, there was an issue sending your request. Please try again or contact us directly.
+            </div>
+        </form>
     </div>
 </div>
 
@@ -391,6 +453,140 @@ layout: default
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     color: #721c24;
+}
+
+.checkout-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.checkout-modal.is-active {
+    display: flex;
+}
+
+.checkout-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.checkout-modal__dialog {
+    position: relative;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 620px;
+    width: 100%;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.checkout-modal__close {
+    position: absolute;
+    right: 14px;
+    top: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.checkout-modal__header {
+    margin-bottom: 18px;
+}
+
+.checkout-modal__header .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.checkout-modal__header h3 {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.checkout-modal__header .subhead {
+    color: #555;
+    margin-bottom: 14px;
+    font-size: 15px;
+}
+
+.checkout-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.checkout-summary .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #777;
+}
+
+.checkout-summary .value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.checkout-form .form-group {
+    margin-bottom: 14px;
+}
+
+.checkout-form label {
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.checkout-form .field-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.checkbox-row input {
+    margin-top: 4px;
+}
+
+.form-note {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 @media (max-width: 968px) {
