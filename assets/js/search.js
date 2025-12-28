@@ -22,18 +22,13 @@
         
         domainCards.forEach(card => {
             const domainName = card.getAttribute('data-name').toLowerCase();
-            const category = card.getAttribute('data-category').toLowerCase();
-            const description = card.querySelector('.domain-description').textContent.toLowerCase();
-            
-            // Search in name, category, and description
-            if (domainName.includes(searchTerm) || 
-                category.includes(searchTerm) || 
-                description.includes(searchTerm)) {
-                card.classList.remove(HIDDEN_CLASS);
-                visibleCount++;
-            } else {
-                card.classList.add(HIDDEN_CLASS);
-            }
+        // Search only by domain name substring
+        if (domainName.includes(searchTerm)) {
+            card.classList.remove(HIDDEN_CLASS);
+            visibleCount++;
+        } else {
+            card.classList.add(HIDDEN_CLASS);
+        }
         });
         
         // Show/hide no results message
@@ -91,6 +86,10 @@
                         domainsSection.scrollIntoView({ behavior: 'smooth' });
                     }
                 }
+            });
+
+            headerSearchInput.addEventListener('input', function() {
+                searchDomains(headerSearchInput.value);
             });
         }
         
