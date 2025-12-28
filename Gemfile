@@ -1,6 +1,5 @@
 source "https://rubygems.org"
-# Asset version for cache-busting (used in layouts). Update this value to bump CSS/JS versions.
-ENV["ASSETS_VERSION"] ||= "1.0.0"
+# Asset version for cache-busting (used in layouts). Set ASSETS_VERSION env to override _config.yml.
 # Hello! This is where you manage which Jekyll version is used to run.
 # When you want to use a different version, change it below, save the
 # file and run `bundle install`. Run Jekyll with `bundle exec`, like so:

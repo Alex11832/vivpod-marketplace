@@ -6,12 +6,19 @@ permalink: /sitemap.xml
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {% assign pages = site.pages | where_exp: 'p', 'p.sitemap != false' %}
   {% for page in pages %}
-  <url>
-    <loc>{{ site.url | append: site.baseurl }}{{ page.url | replace: 'index.html', '' }}</loc>
-    <lastmod>{{ page.last_modified_at | default: page.date | default: site.time | date: "%Y-%m-%d" }}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
+    {% if page.url contains '.css' or page.url contains '/assets/' %}
+      {% continue %}
+    {% endif %}
+    {% assign clean_url = page.url | replace: 'index.html', '' %}
+    {% if clean_url contains '.html' %}
+      {% assign clean_url = clean_url | replace: '.html', '' %}
+    {% endif %}
+    <url>
+      <loc>{{ site.url | append: site.baseurl }}{{ clean_url }}</loc>
+      <lastmod>{{ page.last_modified_at | default: page.date | default: site.time | date: "%Y-%m-%d" }}</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
   {% endfor %}
   {% if site.domains %}
     {% for domain in site.domains %}

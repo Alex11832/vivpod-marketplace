@@ -7,13 +7,20 @@ description: >-
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://vivpod.com" # the base hostname & protocol for your site
 github_username: Alex11832
-assets_version: "1.0.0"
+assets_version: "1.0.2"
+permalink: pretty
 
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+sitemap:
+  exclude:
+    - /assets/main.css
+    - /404.html
+    - assets/main.css
+    - assets/css/style.css
 
 # Collections
 collections:
