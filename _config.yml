@@ -1,11 +1,11 @@
 # Site settings
-title: VivPod Domains
-email: contact@vivpod.com
+title: DDIIA Domains
+email: contact@ddiia.com
 description: >-
   Premium domain marketplace - Find the perfect domain name for your business.
   Over 100+ premium domains available for purchase.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://vivpod.com" # the base hostname & protocol for your site
+url: "https://ddiia.com" # the base hostname & protocol for your site
 github_username: Alex11832
 assets_version: "1.0.4"
 permalink: pretty

@@ -1,6 +1,6 @@
-# VivPod Domains - Premium Domain Marketplace
+# DDIIA Domains - Premium Domain Marketplace
 
-A Jekyll-based domain marketplace website inspired by HugeDomains, designed for selling premium domain names.
+A Jekyll-based domain marketplace website inspired by HugeDomains, currently powering DDIIA's premium domain showcase.
 
 ## 🚀 Features
 
@@ -150,12 +150,12 @@ To enable the "Make Offer" form submissions:
 3. Select source branch (usually `main`)
 4. Your site will be published at `https://yourusername.github.io/vivpod-marketplace/`
 
-### Custom Domain (vivpod.com)
+### Custom Domain (ddiia.com)
 
 1. In repository settings, add your custom domain
 2. Create a `CNAME` file in the root:
 ```
-vivpod.com
+ddiia.com
 ```
 
 3. Configure DNS settings at your domain registrar:
@@ -223,7 +223,7 @@ This project is open source and available under the MIT License.
 ## 🤝 Support
 
 For questions or support:
-- Email: contact@vivpod.com
+- Email: contact@ddiia.com
 - GitHub Issues: [Create an issue](https://github.com/Alex11832/vivpod-marketplace/issues)
 
 ## 🎯 Roadmap

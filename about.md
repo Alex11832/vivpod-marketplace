@@ -6,13 +6,13 @@ title: About Us
 <div class="page-content">
     <div class="container">
         <div class="page-header">
-            <h1>About VivPod Domains</h1>
+            <h1>About DDIIA Domains</h1>
             <p class="lead">Your trusted partner in premium domain acquisition</p>
         </div>
         
         <div class="content-section">
             <h2>Who We Are</h2>
-            <p>VivPod Domains is a premium domain marketplace specializing in high-quality, memorable domain names for businesses and entrepreneurs. We understand that your domain name is more than just a web address—it's your digital identity, your brand's first impression, and a crucial asset for your online success.</p>
+            <p>DDIIA Domains is a premium domain marketplace specializing in high-quality, memorable domain names for businesses and entrepreneurs. We understand that your domain name is more than just a web address—it's your digital identity, your brand's first impression, and a crucial asset for your online success.</p>
         </div>
         
         <div class="content-section">
@@ -25,22 +25,22 @@ title: About Us
             
             <div class="features-list">
                 <div class="feature-box">
-                    <h3>🔒 Secure Transactions</h3>
+                    <h3>Secure Transactions</h3>
                     <p>All purchases are processed through Escrow.com, ensuring safe and secure transactions for both buyers and sellers.</p>
                 </div>
                 
                 <div class="feature-box">
-                    <h3>✓ 30-Day Guarantee</h3>
+                    <h3>30-Day Guarantee</h3>
                     <p>We stand behind every domain we sell with a 30-day money-back guarantee. Your satisfaction is our priority.</p>
                 </div>
                 
                 <div class="feature-box">
-                    <h3>🚀 Fast Transfer</h3>
+                    <h3>Fast Transfer</h3>
                     <p>Quick and efficient domain transfer process. Most domains are transferred within 24-48 hours of purchase completion.</p>
                 </div>
                 
                 <div class="feature-box">
-                    <h3>💬 Expert Support</h3>
+                    <h3>Expert Support</h3>
                     <p>Our team is here to help you through every step of the process, from selection to transfer completion.</p>
                 </div>
             </div>
@@ -52,7 +52,7 @@ title: About Us
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <h3>Browse & Search</h3>
+                    <h3>Browse &amp; Search</h3>
                     <p>Explore our collection of premium domains or use our search to find the perfect match.</p>
                 </div>
                 

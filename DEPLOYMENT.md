@@ -25,12 +25,12 @@ You can check the deployment status:
 Once deployed, your site will be available at:
 - **Default URL**: https://alex11832.github.io/vivpod-marketplace/
 
-### Step 4: Configure Custom Domain (vivpod.com)
+### Step 4: Configure Custom Domain (ddiia.com)
 
 #### A. In GitHub Repository Settings:
 
 1. Go to **Settings** → **Pages**
-2. Under **Custom domain**, enter: `vivpod.com`
+2. Under **Custom domain**, enter: `ddiia.com`
 3. Click **Save**
 4. Check **Enforce HTTPS** (after DNS propagates)
 
@@ -38,7 +38,7 @@ Once deployed, your site will be available at:
 
 **Option 1: Using A Records (Recommended)**
 
-Add these A records for `vivpod.com`:
+Add these A records for `ddiia.com`:
 ```
 Type: A
 Name: @
@@ -76,12 +76,12 @@ Value: alex11832.github.io
 
 Create a file named `CNAME` in the root of your repository with content:
 ```
-vivpod.com
+ddiia.com
 ```
 
 Then commit and push:
 ```bash
-echo "vivpod.com" > CNAME
+echo "ddiia.com" > CNAME
 git add CNAME
 git commit -m "Add custom domain"
 git push
@@ -92,7 +92,7 @@ git push
 Update the `url` in `_config.yml`:
 
 ```yaml
-url: "https://vivpod.com"
+url: "https://ddiia.com"
 baseurl: ""
 ```
 
