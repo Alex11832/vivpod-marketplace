@@ -42,7 +42,8 @@
         cards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
-            card.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
+            // Speed up fade-in animation (3× faster)
+            card.style.transition = `opacity 0.15s ease ${index * 0.033}s, transform 0.15s ease ${index * 0.033}s`;
             observer.observe(card);
         });
     });

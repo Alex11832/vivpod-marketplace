@@ -142,12 +142,6 @@
   category: Food & Beverage
   featured: false
 
-- name: ddiia.com
-  price: 2500
-  description: Sharp four-letter brand that suits AI tooling, biotech, or digital innovation labs
-  category: Technology
-  featured: false
-
 - name: ddiio.com
   price: 2500
   description: Modern, double-vowel domain for data platforms, fintech experiments, or futuristic services
@@ -190,9 +184,21 @@
   category: Brandable
   featured: false
 
+- name: ffiuu.com
+  price: 1000
+  description: Fluid, rhythmic pairing perfect for lifestyle services, boutique communities, or immersive media projects
+  category: Brandable
+  featured: false
+
 - name: ggiio.com
   price: 1500
   description: High-energy name for gaming, AI, or robotics ventures targeting trendsetting audiences
+  category: Technology
+  featured: false
+
+- name: ggiuu.com
+  price: 1000
+  description: Dynamic double-vowel brand that works well for gaming communities, creative studios, or playful tech experiments
   category: Technology
   featured: false
 
@@ -265,5 +271,23 @@
 - name: xuuzi.com
   price: 3000
   description: Memorable phonetics for design collectives, apps, or community platforms
+  category: Brandable
+  featured: false
+
+- name: hhiia.com
+  price: 1000
+  description: Compact, rhythmic name that works for startups, lifestyle, or emerging tech brands
+  category: Brandable
+  featured: false
+
+- name: hhiio.com
+  price: 1000
+  description: Double-vowel energy that fits playful tech startups, creative studios, or lifestyle products
+  category: Brandable
+  featured: false
+
+- name: hhiuu.com
+  price: 1000
+  description: Breezy, memorable name ideal for wellness apps, audio platforms, or modern consumer services
   category: Brandable
   featured: false

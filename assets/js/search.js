@@ -10,7 +10,7 @@
         const domainCards = document.querySelectorAll('.domain-card');
         const noResults = document.getElementById('no-results');
         let visibleCount = 0;
-        
+
         if (!searchTerm) {
             // Show all domains if search is empty
             domainCards.forEach(card => {
@@ -19,16 +19,17 @@
             if (noResults) noResults.classList.add(HIDDEN_CLASS);
             return;
         }
-        
+
         domainCards.forEach(card => {
-            const domainName = card.getAttribute('data-name').toLowerCase();
-        // Search only by domain name substring
-        if (domainName.includes(searchTerm)) {
-            card.classList.remove(HIDDEN_CLASS);
-            visibleCount++;
-        } else {
-            card.classList.add(HIDDEN_CLASS);
-        }
+            const domainName = (card.getAttribute('data-name') || '').toLowerCase();
+
+            const matches = domainName.includes(searchTerm);
+            if (matches) {
+                card.classList.remove(HIDDEN_CLASS);
+                visibleCount++;
+            } else {
+                card.classList.add(HIDDEN_CLASS);
+            }
         });
         
         // Show/hide no results message
