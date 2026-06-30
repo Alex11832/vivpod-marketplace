@@ -94,17 +94,6 @@
   category: Food & Beverage
   featured: false
 
-- name: mobilecarrepairnyc.com
-  price: 5000
-  description: Exact-match domain for NYC mobile mechanics and on-site auto repair services
-  category: Automotive
-  featured: true
-
-- name: autofixnyc.com
-  price: 7000
-  description: Strong local brand for New York auto repair shops or mobile car service crews
-  category: Automotive
-  featured: true
 
 - name: oniito.com
   price: 15000
