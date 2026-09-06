@@ -10,6 +10,9 @@ github_username: Alex11832
 assets_version: "1.0.4"
 permalink: pretty
 
+sass:
+  quiet_deps: true # silence Sass deprecation warnings coming from the minima theme itself
+
 # Build settings
 theme: minima
 plugins:
