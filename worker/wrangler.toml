@@ -1,0 +1,19 @@
+name = "ddiia"
+main = "src/index.js"
+compatibility_date = "2026-01-13"
+
+# Секреты (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID) здесь НЕ хранятся.
+# Заданы напрямую в Cloudflare как encrypted secrets (dashboard или
+# `wrangler secret put`) и не попадают в git.
+
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+[vars]
+# Домены, которым разрешено слать формы через этот воркер.
+ALLOWED_ORIGINS = "https://ddiia.com,https://www.ddiia.com"

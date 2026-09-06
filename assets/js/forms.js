@@ -4,8 +4,9 @@
     
     // Секреты Telegram больше не хранятся на клиенте — форма шлёт данные
     // в Cloudflare Worker-прокси, который сам обращается к Telegram Bot API.
-    const TELEGRAM_ENDPOINT = 'https://ddiia-telegram-proxy.geofakt.workers.dev/';
+    const TELEGRAM_ENDPOINT = 'https://ddiia.geofakt.workers.dev/';
     const DEFAULT_MISSING_VALUE = 'Not provided';
+    const HONEYPOT_FIELD = 'website';
     const HIDDEN_CLASS = 'is-hidden';
     
     const checkoutState = {
@@ -54,6 +55,7 @@
         resetStatusMessages(checkoutState.success, checkoutState.error);
         checkoutState.form.reset();
         updateCheckoutValues(domainName, price);
+        markFormShown(checkoutState.form);
         toggleCheckoutModal(true);
         
         const emailInput = checkoutState.form.querySelector('#checkout-email');
@@ -69,7 +71,13 @@
         openCheckoutModal(domainName, price);
     };
     
-    async function sendToTelegram(title, fields) {
+    // Отмечает момент, когда форма стала видна пользователю — воркер
+    // отбрасывает отправки быстрее нескольких секунд как ботовые.
+    function markFormShown(form) {
+        if (form) form.dataset.shownAt = String(Date.now());
+    }
+
+    async function sendToTelegram(title, fields, formData, form) {
         const response = await fetch(TELEGRAM_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -78,7 +86,9 @@
             body: JSON.stringify({
                 title,
                 fields,
-                pageUrl: window.location.href
+                pageUrl: window.location.href,
+                website: formData.get(HONEYPOT_FIELD) || '',
+                startedAt: form && form.dataset.shownAt ? Number(form.dataset.shownAt) : 0
             })
         });
 
@@ -189,7 +199,7 @@
                 };
                 
                 try {
-                    await sendToTelegram('New secure checkout request', fields);
+                    await sendToTelegram('New secure checkout request', fields, formData, checkoutState.form);
                     checkoutState.form.reset();
                     updateCheckoutValues(domainName, priceValue);
                     showStatusMessage(checkoutState.success);
@@ -207,7 +217,8 @@
         if (offerForm) {
             const offerSuccess = document.getElementById('offer-success');
             const offerError = document.getElementById('offer-error');
-            
+            markFormShown(offerForm);
+
             offerForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 resetStatusMessages(offerSuccess, offerError);
@@ -224,7 +235,7 @@
                 };
                 
                 try {
-                    await sendToTelegram('New domain offer', fields);
+                    await sendToTelegram('New domain offer', fields, formData, offerForm);
                     offerForm.reset();
                     showStatusMessage(offerSuccess);
                 } catch (error) {
@@ -241,7 +252,8 @@
         if (contactForm) {
             const contactSuccess = document.getElementById('contact-success');
             const contactError = document.getElementById('contact-error');
-            
+            markFormShown(contactForm);
+
             contactForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 resetStatusMessages(contactSuccess, contactError);
@@ -256,7 +268,7 @@
                 };
                 
                 try {
-                    await sendToTelegram('New contact message', fields);
+                    await sendToTelegram('New contact message', fields, formData, contactForm);
                     contactForm.reset();
                     showStatusMessage(contactSuccess);
                 } catch (error) {

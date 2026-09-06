@@ -91,7 +91,12 @@ layout: default
                         </div>
                         
                         <input type="hidden" name="domain" value="{{ page.name }}">
-                        
+
+                        <div class="hp-field" aria-hidden="true">
+                            <label for="offer-website">Website</label>
+                            <input type="text" id="offer-website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-large">Submit Offer</button>
                     </form>
                     
@@ -186,7 +191,12 @@ layout: default
             
             <input type="hidden" name="domain" value="{{ page.name }}">
             <input type="hidden" name="price" value="{{ page.price }}">
-            
+
+            <div class="hp-field" aria-hidden="true">
+                <label for="checkout-website">Website</label>
+                <input type="text" id="checkout-website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
             <div class="form-actions">
                 <label class="checkbox-row">
                     <input type="checkbox" id="escrow-confirm" name="escrow_confirm" required>

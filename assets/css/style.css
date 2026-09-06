@@ -942,6 +942,17 @@ body {
     display: none;
 }
 
+/* Honeypot field: invisible to real visitors, but present in the DOM so
+   form-filling bots that don't render CSS tend to fill it in anyway. */
+.hp-field {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
 .checkout-modal {
     position: fixed;
     inset: 0;

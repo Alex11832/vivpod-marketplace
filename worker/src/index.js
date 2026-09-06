@@ -1,18 +1,35 @@
 /**
- * ddiia-telegram-proxy
+ * ddiia — Telegram form proxy
  *
- * Прокси между формами на сайте и Telegram Bot API.
+ * Принимает данные форм с ddiia.com и пересылает их в Telegram.
  * Токен бота и chat_id хранятся только как Cloudflare Worker secrets
  * (env.TELEGRAM_BOT_TOKEN / env.TELEGRAM_CHAT_ID) и никогда не попадают
- * в код, отдаваемый браузеру.
+ * в код, отдаваемый браузеру, ни в git.
+ *
+ * Антиспам (без внешних сервисов и лишней настройки):
+ *  - honeypot-поле "website": скрытое от людей CSS-ом поле формы.
+ *    Боты, которые автозаполняют все поля, попадаются на нём.
+ *  - таймер "startedAt": если форма отправлена меньше чем через
+ *    3 секунды после открытия страницы — почти наверняка бот.
+ *  - Origin allowlist: запросы принимаются только с доменов сайта.
+ * В обоих спам-случаях воркер тихо отвечает "успех", ничего не
+ * отправляя в Telegram — чтобы не подсказывать боту, что его поймали.
  *
  * Ожидаемый запрос от сайта:
- *   POST /  { "title": "New contact message", "fields": { "Name": "...", ... } }
+ *   POST /
+ *   {
+ *     "title": "New contact message",
+ *     "fields": { "Name": "...", "Email": "...", ... },
+ *     "pageUrl": "https://ddiia.com/...",
+ *     "website": "",            // honeypot, должно быть пустым
+ *     "startedAt": 1735900000000 // Date.now() на момент открытия формы
+ *   }
  */
 
 const MAX_FIELDS = 20;
 const MAX_FIELD_LENGTH = 2000;
 const MAX_TITLE_LENGTH = 200;
+const MIN_SUBMIT_MS = 3000;
 
 function corsHeaders(origin) {
     return {
@@ -67,11 +84,8 @@ export default {
     async fetch(request, env) {
         const allowedOrigin = getAllowedOrigin(request, env);
 
-        // Preflight
         if (request.method === 'OPTIONS') {
-            if (!allowedOrigin) {
-                return new Response(null, { status: 403 });
-            }
+            if (!allowedOrigin) return new Response(null, { status: 403 });
             return new Response(null, { status: 204, headers: corsHeaders(allowedOrigin) });
         }
 
@@ -96,7 +110,18 @@ export default {
             return jsonResponse({ error: 'Invalid JSON' }, 400, headers);
         }
 
-        const { title, fields, pageUrl } = payload || {};
+        const { title, fields, pageUrl, website, startedAt } = payload || {};
+
+        // Honeypot: реальные пользователи это поле не видят и не заполняют.
+        if (sanitizeText(website).trim()) {
+            return jsonResponse({ ok: true }, 200, headers);
+        }
+
+        // Слишком быстрая отправка — почти наверняка бот-скрипт.
+        const started = Number(startedAt || 0);
+        if (!started || Date.now() - started < MIN_SUBMIT_MS) {
+            return jsonResponse({ ok: true }, 200, headers);
+        }
 
         if (!fields || typeof fields !== 'object') {
             return jsonResponse({ error: 'Missing fields' }, 400, headers);
