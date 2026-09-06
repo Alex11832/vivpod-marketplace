@@ -2,9 +2,9 @@
 (function() {
     'use strict';
     
-    const TELEGRAM_BOT_TOKEN = '7370481681:AAFoB90F1W-I3Yo5yCOlaFe9li0IzBMVt7o';
-    const TELEGRAM_CHAT_ID = '443139059';
-    const TELEGRAM_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    // Секреты Telegram больше не хранятся на клиенте — форма шлёт данные
+    // в Cloudflare Worker-прокси, который сам обращается к Telegram Bot API.
+    const TELEGRAM_ENDPOINT = 'https://ddiia-telegram-proxy.geofakt.workers.dev/';
     const DEFAULT_MISSING_VALUE = 'Not provided';
     const HIDDEN_CLASS = 'is-hidden';
     
@@ -69,40 +69,25 @@
         openCheckoutModal(domainName, price);
     };
     
-    function buildTelegramMessage(title, fields) {
-        const pageUrl = window.location.href;
-        const lines = [
-            title,
-            `Page: ${pageUrl}`
-        ];
-        
-        Object.entries(fields).forEach(([label, value]) => {
-            lines.push(`${label}: ${value || DEFAULT_MISSING_VALUE}`);
-        });
-        
-        return lines.join('\n');
-    }
-    
     async function sendToTelegram(title, fields) {
-        const text = buildTelegramMessage(title, fields);
-        
         const response = await fetch(TELEGRAM_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text
+                title,
+                fields,
+                pageUrl: window.location.href
             })
         });
-        
+
         if (!response.ok) {
             const errorDetails = await response.json().catch(() => ({}));
-            const message = errorDetails.description || 'Telegram request failed';
+            const message = errorDetails.error || 'Telegram request failed';
             throw new Error(message);
         }
-        
+
         return response.json();
     }
     
